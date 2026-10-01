@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>My 노래방</title>
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="https://static.thenounproject.com/png/music-app-icon-2849414-512.png">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Noto+Sans+KR:wght@400;700&display=swap');
+        
+        :root {
+            --ios-bg: #FFFFFF;
+            --ios-header-bg: rgba(255, 255, 255, 0.96);
+            --cool-gray-bg: #F2F4F7;
+            --cool-gray-dark: #E5E8EB;
+            --ios-text: #1C1E21;
+            --ios-subtext: #8E96A3;
+            --ios-heart: #FF8787;
+            --side-padding: 24px;
+        }
+
+        body { font-family: 'Inter', 'Noto Sans KR', sans-serif; background-color: var(--ios-bg); color: var(--ios-text); letter-spacing: -0.03em; -webkit-tap-highlight-color: transparent; margin: 0; overflow: hidden; }
+
+        .tab-content { display: none; flex-direction: column; height: 100vh; }
+        .tab-content.active { display: flex; }
+
+        /* 헤더 */
+        .header-section { flex-shrink: 0; background: var(--ios-header-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 0.5px solid var(--cool-gray-dark); padding-top: env(safe-area-inset-top); }
+        .header-main { padding: 20px var(--side-padding) 10px; display: flex; justify-content: space-between; align-items: center; }
+        .header-title { font-size: 28px; font-weight: 800; }
+        .edit-btn { color: #007AFF; font-weight: 600; font-size: 16px; }
+
+        .scroll-body { flex: 1; overflow-y: auto; padding: 20px var(--side-padding) 140px; }
+
+        /* 검색 & 필터 */
+        .search-box { background: var(--cool-gray-bg); border-radius: 12px; padding: 10px 16px; display: flex; align-items: center; margin: 0 var(--side-padding) 12px; }
+        .category-scroll { display: flex; gap: 6px; overflow-x: auto; padding: 0 var(--side-padding) 15px; }
+        .category-scroll::-webkit-scrollbar { display: none; }
+        .filter-pill { flex: 0 0 65px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 16px; font-size: 13px; font-weight: 600; background: var(--cool-gray-bg); color: var(--ios-subtext); }
+        .filter-pill.active { background: var(--ios-text); color: #fff; }
+
+        /* 카드 */
+        .song-card-wrapper { display: flex; align-items: center; gap: 0; margin-bottom: 12px; }
+        .song-card { flex: 1; background: var(--cool-gray-bg); border-radius: 20px; padding: 18px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        .num-label { font-size: 10px; color: var(--ios-subtext); font-weight: 700; margin-right: 3px; }
+        .num-val { font-size: 13px; color: #000; font-weight: 800; font-style: italic; }
+
+        .delete-checkbox { width: 0; height: 24px; opacity: 0; overflow: hidden; display: flex; justify-content: center; align-items: center; flex-shrink: 0; transition: all 0.25s ease; }
+        .edit-mode .delete-checkbox { width: 40px; opacity: 1; margin-right: 8px; border: 2px solid var(--cool-gray-dark); border-radius: 50%; }
+        .delete-checkbox.checked { background: #FF3B30; border-color: #FF3B30; color: white; }
+
+        /* 꾸미기 툴바 */
+        .pro-toolbar { display: flex; gap: 10px; margin-bottom: 12px; }
+        .tool-btn { background: #fff; border: 1px solid var(--cool-gray-dark); border-radius: 10px; width: 46px; height: 46px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+
+        /* 입력 폼 */
+        .ios-input { background: var(--cool-gray-bg); border-radius: 14px; padding: 16px; width: 100%; outline: none; border: none; font-size: 16px; margin-bottom: 10px; }
+        #lyricsEditor { min-height: 250px; background: var(--cool-gray-bg); border-radius: 18px; padding: 20px; outline: none; font-size: 14px !important; line-height: 1.6; color: var(--ios-text); }
+
+        /* 팝업 가사 폰트 */
+        #popContent { font-size: 14px !important; line-height: 1.7; -webkit-user-select: text; user-select: text; }
+
+        /* 하단 내비 */
+        .bottom-nav { position: fixed; bottom: 30px; left: 24px; right: 24px; background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(20px); border-radius: 24px; display: flex; padding: 6px; z-index: 2000; box-shadow: 0 8px 30px rgba(0,0,0,0.11); border: 1px solid var(--cool-gray-dark); }
+        .nav-item { flex: 1; padding: 12px 0; text-align: center; color: var(--ios-subtext); border-radius: 20px; font-size: 18px; }
+        .nav-item.active { background: var(--ios-text); color: #fff; }
+
+        /* 팝업 */
+        .slide-up { position: fixed; inset: 0; background: #fff; z-index: 3000; transform: translate3d(0, 100%, 0); border-radius: 30px 30px 0 0; transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); }
+        .slide-up.active { transform: translate3d(0, 44px, 0); }
+        
+        #toast { position: fixed; top: 80px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: #fff; padding: 10px 24px; border-radius: 24px; font-size: 14px; z-index: 4000; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+    </style>
+</head>
+<body onload="initApp()">
+
+    <div id="toast">가사가 전체 선택 및 복사되었습니다!</div>
+
+    <section id="tab-home" class="tab-content active">
+        <header class="header-section">
+            <div class="header-main">
+                <h1 class="header-title">My 노래방</h1>
+                <button id="main-edit-toggle" onclick="toggleEditMode()" class="edit-btn">편집</button>
+            </div>
+            <div class="addon-section">
+                <div class="search-box">
+                    <i class="fas fa-search text-gray-400 mr-2"></i>
+                    <input type="text" id="searchInput" oninput="renderList()" placeholder="제목, 가수, 발음 검색" class="bg-transparent border-none outline-none w-full">
+                </div>
+                <div class="category-scroll">
+                    <button onclick="setFilter('FAV')" id="pill-FAV" class="filter-pill"><i class="fas fa-heart text-[var(--ios-heart)]"></i></button>
+                    <button onclick="setFilter('ALL')" id="pill-ALL" class="filter-pill active">전체</button>
+                    <button onclick="setFilter('J-POP')" id="pill-J-POP" class="filter-pill">J-POP</button>
+                    <button onclick="setFilter('K-POP')" id="pill-K-POP" class="filter-pill">K-POP</button>
+                    <button onclick="setFilter('ETC')" id="pill-ETC" class="filter-pill">기타</button>
+                </div>
+            </div>
+        </header>
+        <div class="scroll-body" id="mainList"></div>
+    </section>
+
+    <section id="tab-add" class="tab-content">
+        <header class="header-section">
+            <div class="header-main"><h1 id="add-page-title" class="header-title">곡 추가</h1></div>
+        </header>
+        <div class="scroll-body">
+            <div class="flex p-1 bg-[#F0F2F5] rounded-2xl mb-6">
+                <button onclick="setFormGenre('J-POP')" id="btnJ" class="flex-1 py-3 rounded-xl text-xs font-bold bg-white shadow-sm">J-POP</button>
+                <button onclick="setFormGenre('K-POP')" id="btnK" class="flex-1 py-3 rounded-xl text-xs font-bold text-gray-400">K-POP</button>
+                <button onclick="setFormGenre('ETC')" id="btnE" class="flex-1 py-3 rounded-xl text-xs font-bold text-gray-400">기타</button>
+            </div>
+            
+            <input type="hidden" id="editingId">
+            <input type="text" id="inTitle" class="ios-input" placeholder="제목">
+            <input type="text" id="inSubTitle" class="ios-input" placeholder="발음 또는 부제">
+            <input type="text" id="inArtist" class="ios-input" placeholder="가수명">
+            <div class="grid grid-cols-2 gap-3 mb-4">
+                <input type="text" id="inTJ" class="ios-input" placeholder="TJ 번호">
+                <input type="text" id="inKY" class="ios-input" placeholder="KY 번호">
+            </div>
+
+            <div class="pro-toolbar">
+                <button onmousedown="event.preventDefault(); execCmd('bold')" class="tool-btn"><i class="fas fa-bold"></i></button>
+                <button onmousedown="event.preventDefault(); execCmd('foreColor', '#FF8787')" class="tool-btn"><div class="w-5 h-5 rounded bg-[#FF8787]"></div></button>
+                <button onmousedown="event.preventDefault(); execCmd('hiliteColor', '#FEF08A')" class="tool-btn"><i class="fas fa-highlighter text-[#EAB308]"></i></button>
+                <button onmousedown="event.preventDefault(); execCmd('removeFormat')" class="tool-btn"><i class="fas fa-eraser"></i></button>
+            </div>
+
+            <div id="lyricsEditor" contenteditable="true" placeholder="가사를 입력하세요..."></div>
+            <button onclick="saveSong()" id="saveBtn" class="w-full py-5 bg-[#1C1E21] text-white rounded-3xl font-bold text-xl mt-6">저장하기</button>
+            <button id="cancelEditBtn" onclick="resetAllStates(); switchTab('home', document.querySelectorAll('.nav-item')[0]);" class="hidden w-full py-4 text-gray-400 mt-2 font-bold">취소</button>
+        </div>
+    </section>
+
+    <section id="tab-more" class="tab-content">
+        <header class="header-section">
+            <div class="header-main"><h1 class="header-title">설정</h1></div>
+        </header>
+        <div class="scroll-body space-y-3">
+            <div onclick="exportData()" class="ios-input flex justify-between items-center cursor-pointer"><span>데이터 백업</span><i class="fas fa-download text-blue-400"></i></div>
+            <label class="ios-input flex justify-between items-center cursor-pointer"><span>데이터 복구</span><input type="file" onchange="importData(this)" class="hidden"><i class="fas fa-upload text-blue-400"></i></label>
+            <div onclick="clearData()" class="ios-input flex justify-between items-center text-red-400 cursor-pointer"><span>모든 데이터 초기화</span><i class="fas fa-trash-alt"></i></div>
+            <div class="pt-20 text-center opacity-20 text-[10px] font-bold uppercase tracking-widest">v10.2 Final Integrity</div>
+        </div>
+    </section>
+
+    <nav id="bottom-nav" class="bottom-nav">
+        <div class="nav-item active" onclick="switchTab('home', this)"><i class="fas fa-house"></i></div>
+        <div class="nav-item" onclick="switchTab('add', this)"><i class="fas fa-plus"></i></div>
+        <div class="nav-item" onclick="switchTab('more', this)"><i class="fas fa-gear"></i></div>
+    </nav>
+
+    <div id="lyricPopup" class="slide-up flex flex-col">
+        <div class="w-10 h-1.5 bg-gray-200 rounded-full mx-auto my-3 shrink-0"></div>
+        <header class="px-8 py-2 flex justify-between items-center shrink-0">
+            <div class="flex-1 overflow-hidden">
+                <h3 id="popTitle" class="font-bold text-2xl truncate"></h3>
+                <p id="popArtist" class="text-sm text-gray-400 mt-1"></p>
+            </div>
+            <div class="flex items-center gap-5">
+                <button onclick="copyAndSelectAll()" title="전체 복사" class="text-gray-400 text-xl active:text-black"><i class="fas fa-copy"></i></button>
+                <button id="popEditBtn" class="text-gray-400 text-xl"><i class="fas fa-pen"></i></button>
+                <button id="popFavBtn" class="text-2xl"><i class="fas fa-heart"></i></button>
+            </div>
+        </header>
+        <div id="popContent" class="flex-1 overflow-y-auto px-8 py-6"></div>
+        <div class="px-8 py-6 bg-gray-50 flex gap-4 pb-24 shrink-0">
+            <div class="flex-1 text-center"><span class="num-label">TJ</span><span id="popTJ" class="num-val"></span></div>
+            <div class="flex-1 text-center border-l"><span class="num-label">KY</span><span id="popKY" class="num-val"></span></div>
+        </div>
+    </div>
+
+    <script>
+        let songs = [];
+        let currentFilter = 'ALL';
+        let formGenre = 'J-POP';
+        let isEditMode = false;
+        let selectedIds = new Set();
+
+        function initApp() {
+            songs = JSON.parse(localStorage.getItem('karaoke_v5_data')) || [];
+            renderList();
+            
+            // 서식 없는 붙여넣기 강제
+            document.getElementById('lyricsEditor').addEventListener('paste', (e) => {
+                e.preventDefault();
+                const text = (e.originalEvent || e).clipboardData.getData('text/plain');
+                document.execCommand('insertText', false, text);
+            });
+        }
+
+        function switchTab(tabId, el) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            if(tabId !== 'add' || !document.getElementById('editingId').value) resetAllStates();
+            document.getElementById('tab-' + tabId).classList.add('active');
+            el.classList.add('active');
+            if(tabId === 'home') renderList();
+            window.scrollTo(0,0);
+        }
+
+        function resetAllStates() {
+            document.getElementById('searchInput').value = '';
+            currentFilter = 'ALL';
+            if(isEditMode) toggleEditMode();
+            document.getElementById('editingId').value = '';
+            document.querySelectorAll('#tab-add input[type="text"]').forEach(i => i.value = '');
+            document.getElementById('lyricsEditor').innerHTML = '';
+            document.getElementById('add-page-title').innerText = "곡 추가";
+            document.getElementById('saveBtn').innerText = "저장하기";
+            document.getElementById('cancelEditBtn').classList.add('hidden');
+            setFormGenre('J-POP');
+            document.getElementById('lyricPopup').classList.remove('active');
+        }
+
+        function renderList() {
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            const container = document.getElementById('mainList');
+            const filtered = songs.filter(s => {
+                const match = s.title.toLowerCase().includes(query) || s.artist.toLowerCase().includes(query) || (s.sub && s.sub.toLowerCase().includes(query));
+                if(currentFilter === 'ALL') return match;
+                if(currentFilter === 'FAV') return match && s.fav;
+                return match && s.genre === currentFilter;
+            });
+            container.innerHTML = filtered.length ? '' : '<div class="text-center py-20 opacity-20 font-bold italic">결과가 없습니다.</div>';
+            filtered.forEach(s => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'song-card-wrapper' + (isEditMode ? ' edit-mode' : '');
+                wrapper.innerHTML = `<div class="delete-checkbox ${selectedIds.has(s.id)?'checked':''}" onclick="handleCardClick(${s.id})">${selectedIds.has(s.id)?'<i class="fas fa-check"></i>':''}</div><div class="song-card" onclick="handleCardClick(${s.id})"><div class="flex-1 overflow-hidden pr-4"><div class="flex items-center gap-1.5">${s.fav?'<i class="fas fa-heart text-[var(--ios-heart)] text-[10px]"></i>':''}<h4 class="font-bold text-lg truncate">${s.title}</h4></div><p class="text-xs text-gray-400 mt-1 truncate">${s.artist} ${s.sub?'• '+s.sub:''}</p></div><div class="shrink-0 text-right"><div><span class="num-label">TJ</span><span class="num-val">${s.tj}</span></div><div><span class="num-label">KY</span><span class="num-val">${s.ky}</span></div></div></div>`;
+                container.appendChild(wrapper);
+            });
+        }
+
+        function showLyrics(id) {
+            const song = songs.find(s => s.id === id);
+            document.getElementById('popTitle').innerText = song.title;
+            document.getElementById('popArtist').innerText = `${song.artist} • ${song.genre}`;
+            document.getElementById('popTJ').innerText = song.tj;
+            document.getElementById('popKY').innerText = song.ky;
+            document.getElementById('popContent').innerHTML = song.lyrics || '가사가 없습니다.';
+            const fBtn = document.getElementById('popFavBtn');
+            fBtn.style.color = song.fav ? '#FF8787' : '#E5E5EA';
+            fBtn.onclick = () => { song.fav = !song.fav; localStorage.setItem('karaoke_v5_data', JSON.stringify(songs)); showLyrics(id); renderList(); };
+            document.getElementById('popEditBtn').onclick = () => {
+                document.getElementById('lyricPopup').classList.remove('active');
+                switchTab('add', document.querySelectorAll('.nav-item')[1]);
+                document.getElementById('editingId').value = song.id;
+                document.getElementById('inTitle').value = song.title;
+                document.getElementById('inSubTitle').value = song.sub || '';
+                document.getElementById('inArtist').value = song.artist;
+                document.getElementById('inTJ').value = song.tj;
+                document.getElementById('inKY').value = song.ky;
+                document.getElementById('lyricsEditor').innerHTML = song.lyrics;
+                document.getElementById('add-page-title').innerText = "곡 수정";
+                document.getElementById('saveBtn').innerText = "수정 완료";
+                document.getElementById('cancelEditBtn').classList.remove('hidden');
+                setFormGenre(song.genre);
+            };
+            document.getElementById('lyricPopup').classList.add('active');
+        }
+
+        // 아이폰 최적화: 전체 선택 + 복사 + 알림 통합 함수
+        async function copyAndSelectAll() {
+            const content = document.getElementById('popContent');
+            // 1. 전체 선택 시각화
+            const range = document.createRange();
+            range.selectNodeContents(content);
+            const sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(range);
+            // 2. 복사 실행
+            try {
+                await navigator.clipboard.writeText(content.innerText);
+            } catch (e) {
+                document.execCommand('copy'); // 구형 대응
+            }
+            // 3. 토스트 알림
+            const toast = document.getElementById('toast');
+            toast.style.opacity = '1';
+            setTimeout(() => toast.style.opacity = '0', 2000);
+        }
+
+        function saveSong() {
+            const title = document.getElementById('inTitle').value.trim();
+            const artist = document.getElementById('inArtist').value.trim();
+            if(!title || !artist) return alert('제목과 가수는 필수입니다.');
+            const editId = document.getElementById('editingId').value;
+            const data = {
+                id: editId ? parseInt(editId) : Date.now(),
+                genre: formGenre, title, sub: document.getElementById('inSubTitle').value,
+                artist, tj: document.getElementById('inTJ').value || '-', ky: document.getElementById('inKY').value || '-',
+                lyrics: document.getElementById('lyricsEditor').innerHTML,
+                fav: editId ? songs.find(s => s.id === parseInt(editId)).fav : false
+            };
+            if(editId) songs[songs.findIndex(s => s.id === data.id)] = data;
+            else songs.unshift(data);
+            localStorage.setItem('karaoke_v5_data', JSON.stringify(songs));
+            resetAllStates();
+            switchTab('home', document.querySelectorAll('.nav-item')[0]);
+        }
+
+        function setFormGenre(g) {
+            formGenre = g;
+            ['btnJ', 'btnK', 'btnE'].forEach(id => document.getElementById(id).className = 'flex-1 py-3 rounded-xl text-xs font-bold text-gray-400');
+            const target = g === 'J-POP' ? 'btnJ' : (g === 'K-POP' ? 'btnK' : 'btnE');
+            document.getElementById(target).className = 'flex-1 py-3 rounded-xl text-xs font-bold bg-white shadow-sm';
+        }
+
+        function setFilter(f) {
+            currentFilter = f;
+            document.querySelectorAll('.filter-pill').forEach(btn => btn.classList.toggle('active', btn.id === 'pill-'+f));
+            renderList();
+        }
+
+        function toggleEditMode() { isEditMode = !isEditMode; selectedIds.clear(); document.getElementById('main-edit-toggle').innerText = isEditMode ? "취소" : "편집"; renderList(); }
+        function handleCardClick(id) { if(isEditMode) { if(selectedIds.has(id)) selectedIds.delete(id); else selectedIds.add(id); renderList(); } else showLyrics(id); }
+        function execCmd(c,v=null) { document.getElementById('lyricsEditor').focus(); document.execCommand(c, false, v); }
+        function exportData() { const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(songs)],{type:'application/json'})); a.download='karaoke_backup.json'; a.click(); }
+        function importData(i) { const r=new FileReader(); r.onload=(e)=>{ songs=JSON.parse(e.target.result); localStorage.setItem('karaoke_v5_data',JSON.stringify(songs)); location.reload(); }; r.readAsText(i.files[0]); }
+        function clearData() { if(confirm('모든 데이터를 삭제할까요?')) { localStorage.removeItem('karaoke_v5_data'); location.reload(); } }
+        
+        let startY = 0;
+        document.getElementById('lyricPopup').addEventListener('touchstart', (e) => startY = e.touches[0].clientY);
+        document.getElementById('lyricPopup').addEventListener('touchend', (e) => { if(e.changedTouches[0].clientY - startY > 100) document.getElementById('lyricPopup').classList.remove('active'); });
+    </script>
+</body>
+</html>
