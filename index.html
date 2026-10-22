@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>My 노래방</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -76,6 +76,45 @@
         .slide-up.active { transform: translate3d(0, 44px, 0); }
         
         #toast { position: fixed; top: 80px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: #fff; padding: 10px 24px; border-radius: 24px; font-size: 14px; z-index: 4000; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+
+/* My 노래방: safe areas, touch gestures and restrained motion. */
+*{box-sizing:border-box}
+:root{--side-padding:20px}
+.tab-content{height:100dvh;max-width:720px;margin:0 auto;min-height:0}
+.header-main{padding-top:18px;padding-bottom:14px}
+.header-title{font-size:28px;line-height:1.25;letter-spacing:-.04em}
+.scroll-body{min-height:0;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding-top:16px;padding-bottom:calc(112px + env(safe-area-inset-bottom))}
+.song-card-wrapper{position:relative;isolation:isolate;overflow:hidden;border-radius:18px;margin-bottom:10px}
+.song-card{position:relative;z-index:1;min-width:0;width:100%;min-height:88px;border-radius:18px;padding:16px;transition:transform .24s cubic-bezier(.22,1,.36,1);touch-action:pan-y}
+.swipe-delete{position:absolute;inset:0 0 0 auto;width:82px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;background:#ff3b30;color:white;font:inherit;font-size:12px;border:0;cursor:pointer}
+.swipe-open .song-card{transform:translateX(-82px)}
+.edit-mode .delete-checkbox{width:26px;height:26px;min-width:26px;margin-right:12px;margin-left:2px}
+.edit-mode .song-card{width:auto}
+#deleteBar{position:fixed;z-index:2100;left:20px;right:20px;bottom:calc(94px + env(safe-area-inset-bottom));max-width:680px;margin:auto;display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:#fff;border:1px solid #e5e5ea;border-radius:16px;box-shadow:0 6px 24px #0000000d;font-size:14px}
+#deleteBar[hidden],#sheetBackdrop[hidden]{display:none}
+#deleteBar button{background:#ff3b30;color:white;border-radius:10px;padding:9px 14px;font-weight:600}
+#deleteBar button:disabled{opacity:.35;cursor:default}
+.selecting #mainList{padding-bottom:calc(190px + env(safe-area-inset-bottom))}
+.bottom-nav{bottom:calc(12px + env(safe-area-inset-bottom));left:20px;right:20px;max-width:680px;margin:auto;border-radius:22px;box-shadow:0 5px 24px #0000000c}
+.nav-item{cursor:pointer;transition:background-color .2s ease,color .2s ease}
+#sheetBackdrop{position:fixed;inset:0;z-index:2900;background:#0005;animation:backdrop-in .2s ease}
+.slide-up{inset:auto 0 0;max-width:720px;margin:auto;height:calc(100dvh - max(24px,env(safe-area-inset-top)));border-radius:26px 26px 0 0;transform:translate3d(0,105%,0);visibility:hidden;transition:transform .32s cubic-bezier(.22,1,.36,1),visibility .32s;overflow:hidden;box-shadow:0 -8px 40px #00000010}
+.slide-up.active{transform:translate3d(0,0,0);visibility:visible}
+#sheetHandle{height:28px;display:grid;place-items:center;flex:none;touch-action:none;cursor:grab}
+#sheetHandle span{width:36px;height:5px;border-radius:99px;background:#d1d1d6}
+#lyricPopup>header{padding:4px 20px 14px;gap:16px}
+#lyricPopup>header>div:last-child{gap:12px}
+#lyricPopup header button{min-width:30px;min-height:36px;display:grid;place-items:center;transition:opacity .15s ease}
+.sheet-close{font-size:26px;line-height:1;color:#8e8e93}
+#popTitle{font-size:22px;line-height:1.35}
+#popContent{min-height:0;padding:20px;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+#lyricPopup>div:last-child{padding:16px 20px calc(20px + env(safe-area-inset-bottom))}
+.ios-input{padding:15px 16px;line-height:1.5}
+.cloud-retry{font-size:13px;color:#007aff;margin-top:8px}
+#cloudStatus{font-size:13px;line-height:1.6;color:var(--ios-subtext)}
+#saveBtn{font-size:17px;padding:17px;border-radius:16px}
+@keyframes backdrop-in{from{opacity:0}to{opacity:1}}
+@media(prefers-reduced-motion:reduce){.song-card,.slide-up,.nav-item{transition:none}#sheetBackdrop{animation:none}}
     </style>
 </head>
 <body onload="initApp()">
@@ -145,7 +184,9 @@
         <div class="scroll-body space-y-3">
             <div onclick="exportData()" class="ios-input flex justify-between items-center cursor-pointer"><span>데이터 백업</span><i class="fas fa-download text-blue-400"></i></div>
             <label class="ios-input flex justify-between items-center cursor-pointer"><span>데이터 복구</span><input type="file" onchange="importData(this)" class="hidden"><i class="fas fa-upload text-blue-400"></i></label>
+            <button type="button" onclick="restoreTrash()" class="ios-input">휴지통 복원</button>
             <div onclick="clearData()" class="ios-input flex justify-between items-center text-red-400 cursor-pointer"><span>모든 데이터 초기화</span><i class="fas fa-trash-alt"></i></div>
+            <div class="ios-input"><p id="cloudStatus" role="status">이 기기에 저장됨</p><button type="button" onclick="initializeCloud()" class="cloud-retry">동기화 다시 시도</button></div>
             <div class="pt-20 text-center opacity-20 text-[10px] font-bold uppercase tracking-widest">v10.2 Final Integrity</div>
         </div>
     </section>
@@ -156,15 +197,17 @@
         <div class="nav-item" onclick="switchTab('more', this)"><i class="fas fa-gear"></i></div>
     </nav>
 
-    <div id="lyricPopup" class="slide-up flex flex-col">
-        <div class="w-10 h-1.5 bg-gray-200 rounded-full mx-auto my-3 shrink-0"></div>
+    <div id="sheetBackdrop" onclick="closeLyrics()" hidden></div>
+<div id="deleteBar" hidden><span id="selectionCount"></span><button type="button" onclick="deleteSelected()">선택 삭제</button></div>
+<div id="lyricPopup" class="slide-up flex flex-col" role="dialog" aria-modal="true" aria-labelledby="popTitle" aria-hidden="true" inert>
+        <div id="sheetHandle" aria-label="아래로 끌어 닫기"><span></span></div>
         <header class="px-8 py-2 flex justify-between items-center shrink-0">
             <div class="flex-1 overflow-hidden">
                 <h3 id="popTitle" class="font-bold text-2xl truncate"></h3>
                 <p id="popArtist" class="text-sm text-gray-400 mt-1"></p>
             </div>
             <div class="flex items-center gap-5">
-                <button onclick="copyAndSelectAll()" title="전체 복사" class="text-gray-400 text-xl active:text-black"><i class="fas fa-copy"></i></button>
+                <button onclick="closeLyrics()" aria-label="가사 닫기" class="sheet-close">×</button><button onclick="copyAndSelectAll()" title="전체 복사" class="text-gray-400 text-xl active:text-black"><i class="fas fa-copy"></i></button>
                 <button id="popEditBtn" class="text-gray-400 text-xl"><i class="fas fa-pen"></i></button>
                 <button id="popFavBtn" class="text-2xl"><i class="fas fa-heart"></i></button>
             </div>
@@ -184,8 +227,9 @@
         let selectedIds = new Set();
 
         function initApp() {
-            songs = JSON.parse(localStorage.getItem('karaoke_v5_data')) || [];
+            try { songs = JSON.parse(localStorage.getItem('karaoke_v5_data')) || []; if(!Array.isArray(songs)) songs=[]; } catch(e) { songs=[]; notify('저장된 데이터 확인이 필요해요. 백업 파일을 보관해 주세요.'); }
             renderList();
+            initializeCloud();
             
             // 서식 없는 붙여넣기 강제
             document.getElementById('lyricsEditor').addEventListener('paste', (e) => {
@@ -208,6 +252,7 @@
         function resetAllStates() {
             document.getElementById('searchInput').value = '';
             currentFilter = 'ALL';
+            document.querySelectorAll('.filter-pill').forEach(btn=>btn.classList.toggle('active',btn.id==='pill-ALL'));
             if(isEditMode) toggleEditMode();
             document.getElementById('editingId').value = '';
             document.querySelectorAll('#tab-add input[type="text"]').forEach(i => i.value = '');
@@ -216,29 +261,32 @@
             document.getElementById('saveBtn').innerText = "저장하기";
             document.getElementById('cancelEditBtn').classList.add('hidden');
             setFormGenre('J-POP');
-            document.getElementById('lyricPopup').classList.remove('active');
+            closeLyrics();
         }
 
         function renderList() {
             const query = document.getElementById('searchInput').value.toLowerCase().trim();
             const container = document.getElementById('mainList');
             const filtered = songs.filter(s => {
-                const match = s.title.toLowerCase().includes(query) || s.artist.toLowerCase().includes(query) || (s.sub && s.sub.toLowerCase().includes(query));
+                const match = String(s.title||'').toLowerCase().includes(query) || String(s.artist||'').toLowerCase().includes(query) || (s.sub && s.sub.toLowerCase().includes(query));
                 if(currentFilter === 'ALL') return match;
                 if(currentFilter === 'FAV') return match && s.fav;
                 return match && s.genre === currentFilter;
             });
             container.innerHTML = filtered.length ? '' : '<div class="text-center py-20 opacity-20 font-bold italic">결과가 없습니다.</div>';
+            updateDeleteBar();
             filtered.forEach(s => {
                 const wrapper = document.createElement('div');
+                wrapper.dataset.songId = String(s.id);
                 wrapper.className = 'song-card-wrapper' + (isEditMode ? ' edit-mode' : '');
-                wrapper.innerHTML = `<div class="delete-checkbox ${selectedIds.has(s.id)?'checked':''}" onclick="handleCardClick(${s.id})">${selectedIds.has(s.id)?'<i class="fas fa-check"></i>':''}</div><div class="song-card" onclick="handleCardClick(${s.id})"><div class="flex-1 overflow-hidden pr-4"><div class="flex items-center gap-1.5">${s.fav?'<i class="fas fa-heart text-[var(--ios-heart)] text-[10px]"></i>':''}<h4 class="font-bold text-lg truncate">${s.title}</h4></div><p class="text-xs text-gray-400 mt-1 truncate">${s.artist} ${s.sub?'• '+s.sub:''}</p></div><div class="shrink-0 text-right"><div><span class="num-label">TJ</span><span class="num-val">${s.tj}</span></div><div><span class="num-label">KY</span><span class="num-val">${s.ky}</span></div></div></div>`;
+                wrapper.innerHTML = `<button type="button" class="swipe-delete" aria-label="곡 삭제" onclick="event.stopPropagation(); deleteSongs([${s.id}])"><i class="fas fa-trash-alt"></i><span>삭제</span></button><div class="delete-checkbox ${selectedIds.has(s.id)?'checked':''}" onclick="handleCardClick(${s.id})">${selectedIds.has(s.id)?'<i class="fas fa-check"></i>':''}</div><div class="song-card" onclick="handleCardClick(${s.id})"><div class="flex-1 overflow-hidden pr-4"><div class="flex items-center gap-1.5">${s.fav?'<i class="fas fa-heart text-[var(--ios-heart)] text-[10px]"></i>':''}<h4 class="font-bold text-lg truncate">${escapeText(s.title)}</h4></div><p class="text-xs text-gray-400 mt-1 truncate">${escapeText(s.artist)} ${s.sub?'• '+escapeText(s.sub):''}</p></div><div class="shrink-0 text-right"><div><span class="num-label">TJ</span><span class="num-val">${escapeText(s.tj)}</span></div><div><span class="num-label">KY</span><span class="num-val">${escapeText(s.ky)}</span></div></div></div>`;
                 container.appendChild(wrapper);
+                bindSwipe(wrapper);
             });
         }
 
         function showLyrics(id) {
-            const song = songs.find(s => s.id === id);
+            const song = songs.find(s => s.id === id); if(!song) return;
             document.getElementById('popTitle').innerText = song.title;
             document.getElementById('popArtist').innerText = `${song.artist} • ${song.genre}`;
             document.getElementById('popTJ').innerText = song.tj;
@@ -246,9 +294,9 @@
             document.getElementById('popContent').innerHTML = song.lyrics || '가사가 없습니다.';
             const fBtn = document.getElementById('popFavBtn');
             fBtn.style.color = song.fav ? '#FF8787' : '#E5E5EA';
-            fBtn.onclick = () => { song.fav = !song.fav; localStorage.setItem('karaoke_v5_data', JSON.stringify(songs)); showLyrics(id); renderList(); };
+            fBtn.onclick = () => { song.fav = !song.fav; persistSongs(); showLyrics(id); renderList(); };
             document.getElementById('popEditBtn').onclick = () => {
-                document.getElementById('lyricPopup').classList.remove('active');
+                closeLyrics();
                 switchTab('add', document.querySelectorAll('.nav-item')[1]);
                 document.getElementById('editingId').value = song.id;
                 document.getElementById('inTitle').value = song.title;
@@ -262,7 +310,7 @@
                 document.getElementById('cancelEditBtn').classList.remove('hidden');
                 setFormGenre(song.genre);
             };
-            document.getElementById('lyricPopup').classList.add('active');
+            openLyrics();
         }
 
         // 아이폰 최적화: 전체 선택 + 복사 + 알림 통합 함수
@@ -300,7 +348,7 @@
             };
             if(editId) songs[songs.findIndex(s => s.id === data.id)] = data;
             else songs.unshift(data);
-            localStorage.setItem('karaoke_v5_data', JSON.stringify(songs));
+            persistSongs();
             resetAllStates();
             switchTab('home', document.querySelectorAll('.nav-item')[0]);
         }
@@ -319,15 +367,35 @@
         }
 
         function toggleEditMode() { isEditMode = !isEditMode; selectedIds.clear(); document.getElementById('main-edit-toggle').innerText = isEditMode ? "취소" : "편집"; renderList(); }
-        function handleCardClick(id) { if(isEditMode) { if(selectedIds.has(id)) selectedIds.delete(id); else selectedIds.add(id); renderList(); } else showLyrics(id); }
+        function handleCardClick(id) { if(Date.now()<suppressCardUntil)return; const opened=document.querySelector('.swipe-open');if(opened){opened.classList.remove('swipe-open');return;} if(isEditMode) { if(selectedIds.has(id)) selectedIds.delete(id); else selectedIds.add(id); renderList(); } else showLyrics(id); }
         function execCmd(c,v=null) { document.getElementById('lyricsEditor').focus(); document.execCommand(c, false, v); }
         function exportData() { const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(songs)],{type:'application/json'})); a.download='karaoke_backup.json'; a.click(); }
-        function importData(i) { const r=new FileReader(); r.onload=(e)=>{ songs=JSON.parse(e.target.result); localStorage.setItem('karaoke_v5_data',JSON.stringify(songs)); location.reload(); }; r.readAsText(i.files[0]); }
-        function clearData() { if(confirm('모든 데이터를 삭제할까요?')) { localStorage.removeItem('karaoke_v5_data'); location.reload(); } }
+        function importData(i) { if(!i.files[0])return;const r=new FileReader();r.onload=e=>{try{const data=JSON.parse(e.target.result);if(!Array.isArray(data)||data.some(s=>!s||!Number.isFinite(s.id)||typeof s.title!=='string'||typeof s.artist!=='string'))throw Error();songs=data;persistSongs();renderList();notify('백업을 불러왔어요');}catch(err){notify('올바른 노래방 백업 파일이 아니에요');}i.value='';};r.readAsText(i.files[0]); }
+        function clearData() { if(confirm('모든 곡을 휴지통으로 옮길까요?')) deleteSongs(songs.map(s=>s.id)); }
         
-        let startY = 0;
-        document.getElementById('lyricPopup').addEventListener('touchstart', (e) => startY = e.touches[0].clientY);
-        document.getElementById('lyricPopup').addEventListener('touchend', (e) => { if(e.changedTouches[0].clientY - startY > 100) document.getElementById('lyricPopup').classList.remove('active'); });
+
+        let suppressCardUntil=0, sheetReturnFocus=null, cloudReady=false, cloudBusy=false, cloudAgain=false, cloudVersions={}, cloudBaseline={}, cloudTimer;
+        let cloudMeta={};try{cloudMeta=JSON.parse(localStorage.getItem('karaoke_cloud_meta')||'{}');}catch(e){}
+        cloudVersions=cloudMeta.versions||{};cloudBaseline=cloudMeta.baseline||{};
+        const cloudPending=new Set(cloudMeta.pending||[]);
+        function persistCloudMeta(){localStorage.setItem('karaoke_cloud_meta',JSON.stringify({versions:cloudVersions,baseline:cloudBaseline,pending:[...cloudPending]}));}
+        function escapeText(v){return String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+        function notify(message){const el=document.getElementById('toast');el.textContent=message;el.style.opacity='1';clearTimeout(el._timer);el._timer=setTimeout(()=>el.style.opacity='0',2200);}
+        function updateDeleteBar(){const bar=document.getElementById('deleteBar');bar.hidden=!isEditMode;document.body.classList.toggle('selecting',isEditMode);document.getElementById('selectionCount').textContent=selectedIds.size+'곡 선택';bar.querySelector('button').disabled=!selectedIds.size;}
+        function deleteSelected(){deleteSongs([...selectedIds]);}
+        function deleteSongs(ids){const removed=songs.filter(s=>ids.includes(s.id));if(!removed.length)return;let trash=[];try{trash=JSON.parse(localStorage.getItem('karaoke_v5_trash')||'[]');}catch(e){}trash.push(...removed.map(song=>({song,deletedAt:Date.now()})));try{localStorage.setItem('karaoke_v5_trash',JSON.stringify(trash));}catch(e){notify('휴지통을 저장하지 못해 삭제를 중단했어요');return;}songs=songs.filter(s=>!ids.includes(s.id));ids.forEach(id=>cloudPending.add(String(id)));selectedIds.clear();persistSongs();closeLyrics();renderList();notify(removed.length+'곡을 휴지통으로 옮겼어요');}
+        function restoreTrash(){let trash=[];try{trash=JSON.parse(localStorage.getItem('karaoke_v5_trash')||'[]');}catch(e){}if(!trash.length){notify('휴지통이 비어 있어요');return;}trash.forEach(item=>{if(!songs.some(s=>s.id===item.song.id)){songs.unshift(item.song);cloudPending.add(String(item.song.id));}});persistSongs();localStorage.removeItem('karaoke_v5_trash');renderList();notify('휴지통의 곡을 복원했어요');}
+        function persistSongs(){try{localStorage.setItem('karaoke_v5_data',JSON.stringify(songs));}catch(e){notify('기기 저장 공간을 확인해 주세요');return;}{const current=new Map(songs.map(s=>[String(s.id),JSON.stringify(s)]));current.forEach((value,id)=>{if(cloudBaseline[id]!==value)cloudPending.add(id);});Object.keys(cloudBaseline).forEach(id=>{if(!current.has(id))cloudPending.add(id);});persistCloudMeta();if(cloudReady){clearTimeout(cloudTimer);cloudTimer=setTimeout(flushCloud,450);}}}
+        function openLyrics(){const popup=document.getElementById('lyricPopup');if(!popup.classList.contains('active'))sheetReturnFocus=document.activeElement;popup.inert=false;popup.setAttribute('aria-hidden','false');document.getElementById('sheetBackdrop').hidden=false;popup.classList.add('active');document.querySelector('.sheet-close').focus({preventScroll:true});}
+        function closeLyrics(){const popup=document.getElementById('lyricPopup');popup.classList.remove('active');popup.style.removeProperty('transform');popup.inert=true;popup.setAttribute('aria-hidden','true');document.getElementById('sheetBackdrop').hidden=true;if(sheetReturnFocus&&sheetReturnFocus.isConnected)sheetReturnFocus.focus({preventScroll:true});}
+        function bindSwipe(wrapper){const card=wrapper.querySelector('.song-card');let drag=null;card.addEventListener('pointerdown',e=>{if(isEditMode||e.button!==0)return;drag={x:e.clientX,y:e.clientY,offset:wrapper.classList.contains('swipe-open')?-82:0,locked:false};});card.addEventListener('pointermove',e=>{if(!drag)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(!drag.locked&&Math.abs(dy)>10&&Math.abs(dy)>Math.abs(dx)){drag=null;return;}if(!drag.locked&&Math.abs(dx)>10){drag.locked=true;card.setPointerCapture(e.pointerId);document.querySelectorAll('.swipe-open').forEach(row=>{if(row!==wrapper)row.classList.remove('swipe-open');});card.style.transition='none';}if(drag.locked){e.preventDefault();card.style.transform='translateX('+Math.min(0,Math.max(-96,drag.offset+dx))+'px)';}});function finish(e){if(!drag)return;if(drag.locked){wrapper.classList.toggle('swipe-open',drag.offset+e.clientX-drag.x < -35);suppressCardUntil=Date.now()+350;}card.style.removeProperty('transition');card.style.removeProperty('transform');drag=null;}card.addEventListener('pointerup',finish);card.addEventListener('pointercancel',()=>{card.style.removeProperty('transition');card.style.removeProperty('transform');drag=null;});}
+        const sheetHandle=document.getElementById('sheetHandle');let sheetDrag=null;sheetHandle.addEventListener('pointerdown',e=>{sheetDrag={y:e.clientY};sheetHandle.setPointerCapture(e.pointerId);});sheetHandle.addEventListener('pointermove',e=>{if(!sheetDrag)return;const delta=Math.max(0,e.clientY-sheetDrag.y);document.getElementById('lyricPopup').style.transform='translateY('+delta+'px)';});function finishSheet(e){if(!sheetDrag)return;const down=e.clientY-sheetDrag.y;sheetDrag=null;document.getElementById('lyricPopup').style.removeProperty('transform');if(down>85)closeLyrics();}sheetHandle.addEventListener('pointerup',finishSheet);sheetHandle.addEventListener('pointercancel',()=>{sheetDrag=null;document.getElementById('lyricPopup').style.removeProperty('transform');});
+        document.addEventListener('keydown',e=>{const popup=document.getElementById('lyricPopup');if(!popup.classList.contains('active'))return;if(e.key==='Escape')closeLyrics();if(e.key==='Tab'){const buttons=[...popup.querySelectorAll('button')],first=buttons[0],last=buttons[buttons.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}});
+        function cloudMessage(text){document.getElementById('cloudStatus').textContent=text;}
+        function cloudCall(name,payload){return new Promise((resolve,reject)=>{const run=google.script.run.withSuccessHandler(resolve).withFailureHandler(reject);if(name==='read')run.karaokeRead();else run.karaokeWrite(payload);});}
+        async function initializeCloud(){if(!(window.google&&google.script&&google.script.run)){cloudMessage('이 기기에 저장됨 · Google 동기화 앱에서 연결 가능');return;}if(cloudBusy)return;cloudBusy=true;cloudMessage('Google 데이터 연결 중…');try{const data=await cloudCall('read'),remote=data.records||{};const previousBaseline=cloudBaseline;const local=new Map(songs.map(s=>[String(s.id),s]));Object.keys(remote).forEach(id=>{const record=remote[id];cloudVersions[id]=record.version;if(!cloudPending.has(id)){if(record.deleted){local.delete(id);delete cloudBaseline[id];}else{local.set(id,record.song);cloudBaseline[id]=JSON.stringify(record.song);}}});songs=[...local.values()];cloudReady=true;persistCloudMeta();persistSongs();renderList();cloudMessage('Google 데이터 연결 완료');}catch(e){cloudMessage('연결 실패 · 기기 기록은 유지됩니다');}finally{cloudBusy=false;}if(cloudReady)flushCloud();}
+        async function flushCloud(){if(!cloudReady||cloudBusy){cloudAgain=true;return;}if(!cloudPending.size)return;cloudBusy=true;const ids=[...cloudPending],changes={};ids.forEach(id=>{const song=songs.find(s=>String(s.id)===id);changes[id]={version:cloudVersions[id]||0,song:song||null,deleted:!song};cloudPending.delete(id);});cloudMessage('Google에 저장 중…');try{const result=await cloudCall('write',{changes});Object.keys(result.records||{}).forEach(id=>{const r=result.records[id];cloudVersions[id]=r.version;if(!cloudPending.has(id)){songs=songs.filter(s=>String(s.id)!==id);if(!r.deleted)songs.push(r.song);if(r.deleted)delete cloudBaseline[id];else cloudBaseline[id]=JSON.stringify(r.song);}});localStorage.setItem('karaoke_v5_data',JSON.stringify(songs));persistCloudMeta();renderList();cloudMessage(result.conflict?'다른 기기의 최신 변경을 반영했어요':'Google 저장 완료');}catch(e){ids.forEach(id=>cloudPending.add(id));persistCloudMeta();cloudMessage('저장 실패 · 기기 기록 보존 · 다시 시도해 주세요');}finally{cloudBusy=false;}if(cloudAgain){cloudAgain=false;flushCloud();}}
+        document.addEventListener('visibilitychange',()=>{if(!document.hidden&&cloudReady&&!cloudBusy&&!cloudPending.size)initializeCloud();});
     </script>
 </body>
 </html>
