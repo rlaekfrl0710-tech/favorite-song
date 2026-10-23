@@ -19,13 +19,10 @@
             renderList();
             initializeCloud();
             
-            // 서식 없는 붙여넣기 강제
-            document.getElementById('lyricsEditor').addEventListener('paste', (e) => {
-                e.preventDefault();
-                const text = (e.originalEvent || e).clipboardData.getData('text/plain');
-                document.execCommand('insertText', false, text);
-            });
+            document.getElementById('lyricsEditor').addEventListener('paste',e=>{e.preventDefault();const clipboard=e.clipboardData,html=clipboard.getData('text/html');if(html)document.execCommand('insertHTML',false,cleanLyricsHtml(html));else document.execCommand('insertText',false,clipboard.getData('text/plain'));});
         }
+
+        function cleanLyricsHtml(html){const source=new DOMParser().parseFromString(html,'text/html'),output=document.createElement('div');const allowed=new Set(['DIV','P','BR','SPAN','B','STRONG','I','EM','U','S','FONT']);const blocked=new Set(['SCRIPT','STYLE','IFRAME','OBJECT','EMBED','SVG','MATH','IMG','VIDEO','AUDIO','LINK','META']);function copy(node,parent){if(node.nodeType===3){parent.appendChild(document.createTextNode(node.textContent));return;}if(node.nodeType!==1||blocked.has(node.tagName))return;let target=parent;if(allowed.has(node.tagName)){target=document.createElement(node.tagName==='FONT'?'span':node.tagName.toLowerCase());['color','backgroundColor','fontWeight','fontStyle','textDecoration','marginBottom','lineHeight'].forEach(key=>{if(node.style[key])target.style[key]=node.style[key];});if(node.tagName==='FONT'&&node.getAttribute('color'))target.style.color=node.getAttribute('color');parent.appendChild(target);}Array.from(node.childNodes).forEach(child=>copy(child,target));}Array.from(source.body.childNodes).forEach(node=>copy(node,output));return output.innerHTML;}
 
         function switchTab(tabId, el) {
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
