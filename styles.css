@@ -152,3 +152,5 @@
 .settings-version{text-align:center;font-size:11px;letter-spacing:.02em;color:var(--ios-subtext);margin:4px 0 12px}
 @media(max-width:380px){:root{--side-padding:16px}.settings-row{padding-left:14px;padding-right:14px}}
 @media(prefers-reduced-motion:reduce){.swipe-delete,.genre-control button,.tool-btn,#saveBtn,.settings-row{transition:none}}
+
+.tool-btn[aria-pressed="true"]{background:#e2e6ec;box-shadow:inset 0 0 0 1px #cbd1da;color:var(--ios-text)}

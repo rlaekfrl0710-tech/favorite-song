@@ -62,9 +62,9 @@
             </div>
 
             <div class="lyrics-label">가사 <span>선택</span></div><div class="pro-toolbar" role="toolbar" aria-label="가사 서식">
-                <button onpointerdown="event.preventDefault()" onclick="execCmd('bold')" class="tool-btn" type="button" aria-label="굵게"><i class="fas fa-bold"></i></button>
-                <button onpointerdown="event.preventDefault()" onclick="execCmd('foreColor', '#FF8787')" class="tool-btn" type="button" aria-label="글자색"><div class="w-5 h-5 rounded bg-[#FF8787]"></div></button>
-                <button onpointerdown="event.preventDefault()" onclick="execCmd('hiliteColor', '#FEF08A')" class="tool-btn" type="button" aria-label="형광펜"><i class="fas fa-highlighter text-[#EAB308]"></i></button>
+                <button onpointerdown="event.preventDefault()" data-format="bold" aria-pressed="false" onclick="execCmd('bold')" class="tool-btn" type="button" aria-label="굵게"><i class="fas fa-bold"></i></button>
+                <button onpointerdown="event.preventDefault()" data-format="foreColor" aria-pressed="false" onclick="execCmd('foreColor', '#FF8787')" class="tool-btn" type="button" aria-label="글자색"><div class="w-5 h-5 rounded bg-[#FF8787]"></div></button>
+                <button onpointerdown="event.preventDefault()" data-format="hiliteColor" aria-pressed="false" onclick="execCmd('hiliteColor', '#FEF08A')" class="tool-btn" type="button" aria-label="형광펜"><i class="fas fa-highlighter text-[#EAB308]"></i></button>
                 <button onpointerdown="event.preventDefault()" onclick="execCmd('removeFormat')" class="tool-btn" type="button" aria-label="서식 지우기"><i class="fas fa-eraser"></i></button>
             </div>
 
