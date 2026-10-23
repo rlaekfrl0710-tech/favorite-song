@@ -115,3 +115,40 @@
         #authSubmit:disabled { opacity:.5; }
         #authMessage { min-height:24px; margin-top:14px; color:#a23c46; font-size:13px; }
     
+/* Consistent song form and settings controls. */
+.swipe-delete{inset:auto 12px auto auto;top:50%;transform:translateY(-50%);width:56px;height:56px;border-radius:50%;font-size:18px;gap:0;transition:background-color .18s ease,scale .18s ease}
+.swipe-delete:active{scale:.94;background:#e9342a}
+.genre-control{display:flex;gap:4px;padding:4px;background:var(--cool-gray-bg);border-radius:14px;margin-bottom:24px}
+.genre-control button{min-height:40px;padding:8px 12px!important;font-size:13px!important;border-radius:10px;transition:background-color .18s ease,color .18s ease}
+.form-field{display:block;margin-bottom:16px;min-width:0}
+.form-field>span,.lyrics-label{display:block;font-size:13px;font-weight:600;line-height:20px;margin-bottom:7px;color:#555e68}
+.field-required,.lyrics-label>span{font-size:11px;font-weight:400;color:var(--ios-subtext);margin-left:4px}
+#tab-add .ios-input{display:block;margin:0;min-height:50px;border:1px solid transparent;border-radius:14px;padding:13px 15px}
+#tab-add .ios-input[aria-invalid="true"]{border-color:#edb2b2;background:#fff5f5}
+#tab-add .grid{margin-bottom:4px;gap:12px}
+.pro-toolbar{gap:8px;margin-bottom:10px}
+.tool-btn{width:40px;height:40px;border-radius:12px;background:var(--cool-gray-bg);border-color:transparent;transition:background-color .18s ease,transform .18s ease}
+.tool-btn:active{transform:scale(.95);background:var(--cool-gray-dark)}
+#lyricsEditor{min-height:220px;border-radius:16px;padding:16px;overflow-wrap:anywhere}
+#lyricsEditor:empty:before{content:attr(data-placeholder);color:var(--ios-subtext);pointer-events:none}
+.form-message{font-size:13px;color:#bc4343;line-height:1.5;margin-top:10px}
+.form-message:empty{display:none}
+#saveBtn{margin-top:20px;font-weight:600;transition:opacity .18s ease,transform .18s ease}
+#saveBtn:active{opacity:.85;transform:scale(.99)}
+.settings-body{display:flex;flex-direction:column;gap:20px}
+.settings-group{background:var(--cool-gray-bg);border-radius:18px;overflow:hidden;flex-shrink:0}
+.settings-row{position:relative;display:flex;align-items:center;gap:12px;width:100%;min-height:56px;padding:15px 16px;background:transparent;text-align:left;font:inherit;font-size:15px;line-height:24px;cursor:pointer;border:none;transition:background-color .18s ease}
+.settings-row+.settings-row:before{content:'';position:absolute;left:48px;right:16px;top:0;height:1px;background:#e2e5e9}
+.settings-row>i:first-child{width:20px;text-align:center;font-size:16px;color:#737e8c;flex:none}
+.settings-row>span{flex:1}
+.settings-row .row-chevron{font-size:10px;color:#a4abb4;flex:none}
+.settings-row:active{background:#e7eaee}
+.upload-row input{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden}
+.upload-row:focus-within{background:#e7eaee}
+.danger-row,.danger-row>i:first-child{color:#df4545}
+.sync-summary{display:flex;align-items:center;gap:12px;padding:16px 16px 4px}
+.sync-summary>i{font-size:16px;width:20px;color:#737e8c}
+#cloudStatus{font-size:13px;line-height:20px}
+.settings-version{text-align:center;font-size:11px;letter-spacing:.02em;color:var(--ios-subtext);margin:4px 0 12px}
+@media(max-width:380px){:root{--side-padding:16px}.settings-row{padding-left:14px;padding-right:14px}}
+@media(prefers-reduced-motion:reduce){.swipe-delete,.genre-control button,.tool-btn,#saveBtn,.settings-row{transition:none}}

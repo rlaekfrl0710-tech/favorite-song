@@ -30,7 +30,8 @@
         function switchTab(tabId, el) {
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            if(tabId !== 'add' || !document.getElementById('editingId').value) resetAllStates();
+            closeLyrics();
+            if(tabId !== 'home' && isEditMode) toggleEditMode();
             document.getElementById('tab-' + tabId).classList.add('active');
             el.classList.add('active');
             if(tabId === 'home') renderList();
@@ -49,6 +50,8 @@
             document.getElementById('saveBtn').innerText = "저장하기";
             document.getElementById('cancelEditBtn').classList.add('hidden');
             setFormGenre('J-POP');
+            document.getElementById('songFormMessage').textContent='';
+            document.querySelectorAll('#tab-add [aria-invalid]').forEach(el=>el.removeAttribute('aria-invalid'));
             closeLyrics();
         }
 
@@ -67,7 +70,7 @@
                 const wrapper = document.createElement('div');
                 wrapper.dataset.songId = String(s.id);
                 wrapper.className = 'song-card-wrapper' + (isEditMode ? ' edit-mode' : '');
-                wrapper.innerHTML = `<button type="button" class="swipe-delete" aria-label="곡 삭제" onclick="event.stopPropagation(); deleteSongs([${s.id}])"><i class="fas fa-trash-alt"></i><span>삭제</span></button><div class="delete-checkbox ${selectedIds.has(s.id)?'checked':''}" onclick="handleCardClick(${s.id})">${selectedIds.has(s.id)?'<i class="fas fa-check"></i>':''}</div><div class="song-card" onclick="handleCardClick(${s.id})"><div class="flex-1 overflow-hidden pr-4"><div class="flex items-center gap-1.5">${s.fav?'<i class="fas fa-heart text-[var(--ios-heart)] text-[10px]"></i>':''}<h4 class="font-bold text-lg truncate">${escapeText(s.title)}</h4></div><p class="text-xs text-gray-400 mt-1 truncate">${escapeText(s.artist)} ${s.sub?'• '+escapeText(s.sub):''}</p></div><div class="shrink-0 text-right"><div><span class="num-label">TJ</span><span class="num-val">${escapeText(s.tj)}</span></div><div><span class="num-label">KY</span><span class="num-val">${escapeText(s.ky)}</span></div></div></div>`;
+                wrapper.innerHTML = `<button type="button" class="swipe-delete" aria-label="곡 삭제" onclick="event.stopPropagation(); deleteSongs([${s.id}])"><i class="fas fa-trash-alt"></i></button><div class="delete-checkbox ${selectedIds.has(s.id)?'checked':''}" onclick="handleCardClick(${s.id})">${selectedIds.has(s.id)?'<i class="fas fa-check"></i>':''}</div><div class="song-card" onclick="handleCardClick(${s.id})"><div class="flex-1 overflow-hidden pr-4"><div class="flex items-center gap-1.5">${s.fav?'<i class="fas fa-heart text-[var(--ios-heart)] text-[10px]"></i>':''}<h4 class="font-bold text-lg truncate">${escapeText(s.title)}</h4></div><p class="text-xs text-gray-400 mt-1 truncate">${escapeText(s.artist)} ${s.sub?'• '+escapeText(s.sub):''}</p></div><div class="shrink-0 text-right"><div><span class="num-label">TJ</span><span class="num-val">${escapeText(s.tj)}</span></div><div><span class="num-label">KY</span><span class="num-val">${escapeText(s.ky)}</span></div></div></div>`;
                 container.appendChild(wrapper);
                 bindSwipe(wrapper);
             });
@@ -86,6 +89,7 @@
             document.getElementById('popEditBtn').onclick = () => {
                 closeLyrics();
                 switchTab('add', document.querySelectorAll('.nav-item')[1]);
+                resetAllStates();
                 document.getElementById('editingId').value = song.id;
                 document.getElementById('inTitle').value = song.title;
                 document.getElementById('inSubTitle').value = song.sub || '';
@@ -125,18 +129,25 @@
         function saveSong() {
             const title = document.getElementById('inTitle').value.trim();
             const artist = document.getElementById('inArtist').value.trim();
-            if(!title || !artist) return alert('제목과 가수는 필수입니다.');
+            const message=document.getElementById('songFormMessage');
+            ['inTitle','inArtist'].forEach(id=>document.getElementById(id).setAttribute('aria-invalid',String(!document.getElementById(id).value.trim())));
+            if(!title || !artist){message.textContent='제목과 가수를 입력해 주세요.';document.getElementById(!title?'inTitle':'inArtist').focus();return;}
+            message.textContent='';
             const editId = document.getElementById('editingId').value;
+            const existing=editId?songs.find(s=>s.id===Number(editId)):null;
+            if(editId&&!existing){message.textContent='이 곡을 찾을 수 없어요. 목록에서 다시 열어 주세요.';return;}
+            let newId=Date.now();while(songs.some(s=>s.id===newId))newId++;
+            const before=songs.slice();
             const data = {
-                id: editId ? parseInt(editId) : Date.now(),
+                id: editId ? Number(editId) : newId,
                 genre: formGenre, title, sub: document.getElementById('inSubTitle').value,
                 artist, tj: document.getElementById('inTJ').value || '-', ky: document.getElementById('inKY').value || '-',
                 lyrics: document.getElementById('lyricsEditor').innerHTML,
-                fav: editId ? songs.find(s => s.id === parseInt(editId)).fav : false
+                fav: existing ? existing.fav : false
             };
             if(editId) songs[songs.findIndex(s => s.id === data.id)] = data;
             else songs.unshift(data);
-            persistSongs();
+            if(persistSongs()===false){songs=before;message.textContent='기기 저장 공간을 확인해 주세요. 입력 내용은 유지됩니다.';return;}
             resetAllStates();
             switchTab('home', document.querySelectorAll('.nav-item')[0]);
         }
@@ -156,7 +167,9 @@
 
         function toggleEditMode() { isEditMode = !isEditMode; selectedIds.clear(); document.getElementById('main-edit-toggle').innerText = isEditMode ? "취소" : "편집"; renderList(); }
         function handleCardClick(id) { if(Date.now()<suppressCardUntil)return; const opened=document.querySelector('.swipe-open');if(opened){opened.classList.remove('swipe-open');return;} if(isEditMode) { if(selectedIds.has(id)) selectedIds.delete(id); else selectedIds.add(id); renderList(); } else showLyrics(id); }
-        function execCmd(c,v=null) { document.getElementById('lyricsEditor').focus(); document.execCommand(c, false, v); }
+        let lyricsSelection=null;
+        document.addEventListener('selectionchange',()=>{const selection=window.getSelection(),editor=document.getElementById('lyricsEditor');if(selection.rangeCount&&editor.contains(selection.anchorNode)&&editor.contains(selection.focusNode))lyricsSelection=selection.getRangeAt(0).cloneRange();});
+        function execCmd(c,v=null){const editor=document.getElementById('lyricsEditor');editor.focus({preventScroll:true});if(lyricsSelection&&editor.contains(lyricsSelection.commonAncestorContainer)){const selection=window.getSelection();selection.removeAllRanges();selection.addRange(lyricsSelection);}document.execCommand(c,false,v);}
         function exportData() { const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(songs)],{type:'application/json'})); a.download='karaoke_backup.json'; a.click(); }
         function importData(i) { if(!i.files[0])return;const r=new FileReader();r.onload=e=>{try{const data=JSON.parse(e.target.result);if(!Array.isArray(data)||data.some(s=>!s||!Number.isFinite(s.id)||typeof s.title!=='string'||typeof s.artist!=='string'))throw Error();songs=data;persistSongs();renderList();notify('백업을 불러왔어요');}catch(err){notify('올바른 노래방 백업 파일이 아니에요');}i.value='';};r.readAsText(i.files[0]); }
         function clearData() { if(confirm('모든 곡을 휴지통으로 옮길까요?')) deleteSongs(songs.map(s=>s.id)); }
@@ -173,7 +186,7 @@
         function deleteSelected(){deleteSongs([...selectedIds]);}
         function deleteSongs(ids){const removed=songs.filter(s=>ids.includes(s.id));if(!removed.length)return;let trash=[];try{trash=JSON.parse(localStorage.getItem('karaoke_v5_trash')||'[]');}catch(e){}trash.push(...removed.map(song=>({song,deletedAt:Date.now()})));try{localStorage.setItem('karaoke_v5_trash',JSON.stringify(trash));}catch(e){notify('휴지통을 저장하지 못해 삭제를 중단했어요');return;}songs=songs.filter(s=>!ids.includes(s.id));ids.forEach(id=>cloudPending.add(String(id)));selectedIds.clear();persistSongs();closeLyrics();renderList();notify(removed.length+'곡을 휴지통으로 옮겼어요');}
         function restoreTrash(){let trash=[];try{trash=JSON.parse(localStorage.getItem('karaoke_v5_trash')||'[]');}catch(e){}if(!trash.length){notify('휴지통이 비어 있어요');return;}trash.forEach(item=>{if(!songs.some(s=>s.id===item.song.id)){songs.unshift(item.song);cloudPending.add(String(item.song.id));}});persistSongs();localStorage.removeItem('karaoke_v5_trash');renderList();notify('휴지통의 곡을 복원했어요');}
-        function persistSongs(){try{localStorage.setItem('karaoke_v5_data',JSON.stringify(songs));}catch(e){notify('기기 저장 공간을 확인해 주세요');return;}{const current=new Map(songs.map(s=>[String(s.id),JSON.stringify(s)]));current.forEach((value,id)=>{if(cloudBaseline[id]!==value)cloudPending.add(id);});Object.keys(cloudBaseline).forEach(id=>{if(!current.has(id))cloudPending.add(id);});persistCloudMeta();if(cloudReady){clearTimeout(cloudTimer);cloudTimer=setTimeout(flushCloud,450);}}}
+        function persistSongs(){try{localStorage.setItem('karaoke_v5_data',JSON.stringify(songs));}catch(e){notify('기기 저장 공간을 확인해 주세요');return false;}{const current=new Map(songs.map(s=>[String(s.id),JSON.stringify(s)]));current.forEach((value,id)=>{if(cloudBaseline[id]!==value)cloudPending.add(id);});Object.keys(cloudBaseline).forEach(id=>{if(!current.has(id))cloudPending.add(id);});persistCloudMeta();if(cloudReady){clearTimeout(cloudTimer);cloudTimer=setTimeout(flushCloud,450);}}return true;}
         function openLyrics(){const popup=document.getElementById('lyricPopup');if(!popup.classList.contains('active'))sheetReturnFocus=document.activeElement;popup.inert=false;popup.setAttribute('aria-hidden','false');document.getElementById('sheetBackdrop').hidden=false;popup.classList.add('active');document.querySelector('.sheet-close').focus({preventScroll:true});}
         function closeLyrics(){const popup=document.getElementById('lyricPopup');popup.classList.remove('active');popup.style.removeProperty('transform');popup.inert=true;popup.setAttribute('aria-hidden','true');document.getElementById('sheetBackdrop').hidden=true;if(sheetReturnFocus&&sheetReturnFocus.isConnected)sheetReturnFocus.focus({preventScroll:true});}
         function bindSwipe(wrapper){const card=wrapper.querySelector('.song-card');let drag=null;card.addEventListener('pointerdown',e=>{if(isEditMode||e.button!==0)return;drag={x:e.clientX,y:e.clientY,offset:wrapper.classList.contains('swipe-open')?-82:0,locked:false};});card.addEventListener('pointermove',e=>{if(!drag)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(!drag.locked&&Math.abs(dy)>10&&Math.abs(dy)>Math.abs(dx)){drag=null;return;}if(!drag.locked&&Math.abs(dx)>10){drag.locked=true;card.setPointerCapture(e.pointerId);document.querySelectorAll('.swipe-open').forEach(row=>{if(row!==wrapper)row.classList.remove('swipe-open');});card.style.transition='none';}if(drag.locked){e.preventDefault();card.style.transform='translateX('+Math.min(0,Math.max(-96,drag.offset+dx))+'px)';}});function finish(e){if(!drag)return;if(drag.locked){wrapper.classList.toggle('swipe-open',drag.offset+e.clientX-drag.x < -35);suppressCardUntil=Date.now()+350;}card.style.removeProperty('transition');card.style.removeProperty('transform');drag=null;}card.addEventListener('pointerup',finish);card.addEventListener('pointercancel',()=>{card.style.removeProperty('transition');card.style.removeProperty('transform');drag=null;});}
