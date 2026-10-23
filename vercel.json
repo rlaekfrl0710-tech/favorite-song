@@ -29,5 +29,5 @@
       ]
     }
   ],
-  "buildCommand": "mkdir -p public && cp index.html styles.css app.js public/"
+  "buildCommand": "mkdir -p public && cp index.html styles.css app.js karaoke-icon-v2.png public/"
 }
