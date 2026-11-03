@@ -234,3 +234,15 @@ body.keyboard-open .slide-up{height:var(--app-visible-height,100%);max-height:va
 .bottom-nav .nav-item{position:relative;z-index:1;min-width:0;border-radius:9999px;background:transparent!important;transition:color .22s ease}
 .bottom-nav .nav-item.active{background:transparent!important;color:#fff}
 @media(prefers-reduced-motion:reduce){.bottom-nav::before{transition:none}.bottom-nav .nav-item{transition:none}}
+
+/* v10.8: correct iOS installed-app viewport clipping.
+   The previous fixed html/body height:100% used the shorter layout viewport. */
+html{position:relative!important;inset:auto!important;height:100dvh!important;min-height:100dvh!important;max-height:100dvh!important;overflow:hidden!important}
+body{position:relative!important;inset:auto!important;height:100dvh!important;min-height:100dvh!important;max-height:100dvh!important;overflow:hidden!important}
+.tab-content{height:100dvh!important;max-height:100dvh!important;min-height:0!important}
+.scroll-body{min-height:0;flex:1 1 0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:calc(100px + env(safe-area-inset-bottom,0px))}
+.bottom-nav{position:fixed;bottom:calc(12px + env(safe-area-inset-bottom,0px));max-width:275px;border-radius:9999px}
+#authGate{height:100dvh!important;max-height:100dvh}
+body.keyboard-open .tab-content{height:var(--app-visible-height,100dvh)!important;max-height:var(--app-visible-height,100dvh)!important}
+body.keyboard-open #authGate{height:var(--app-visible-height,100dvh)!important;max-height:var(--app-visible-height,100dvh)!important}
+@supports not (height:100dvh){html,body,.tab-content{height:100vh!important;max-height:100vh!important}}
