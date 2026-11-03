@@ -264,3 +264,8 @@ button,a,input,textarea,select{touch-action:manipulation}
 .lyric-glyph-highlight::after{content:"";position:absolute;bottom:1px;left:1px;right:1px;height:7px;background:#e9d98580;z-index:-1}
 .lyric-glyph-highlight{isolation:isolate}
 .lyric-glyph-erase{width:20px;height:20px}
+
+/* v12.7 Japanese lyric triplet formatting */
+.japanese-lyrics-format{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:38px;padding:0 13px;margin:0 0 12px;border:1px solid #e5e7eb;border-radius:11px;background:#f7f7f8;color:#383b42;font-size:13px;font-weight:600;cursor:pointer}
+.japanese-lyrics-format i{font-size:13px;color:#e54848}
+.japanese-lyrics-format:active{background:#ededf0}
