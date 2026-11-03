@@ -285,3 +285,14 @@ button,a,input,textarea,select{touch-action:manipulation}
 .pro-toolbar #japaneseLyricsFormatBtn{flex:0 0 40px;width:40px;min-width:40px;height:40px;margin:0;padding:0;border:1px solid transparent;border-radius:11px;background:#f4f4f5;color:#44474d}
 .pro-toolbar #japaneseLyricsFormatBtn svg{display:block;width:20px;height:20px}
 .pro-toolbar #japaneseLyricsFormatBtn:active{background:#e9e9ed}
+
+/* v13.3: reference-style minimal glyph toolbar */
+.pro-toolbar{display:flex;gap:10px;align-items:center;grid-template-columns:none}
+.pro-toolbar .tool-btn,.pro-toolbar #japaneseLyricsFormatBtn{width:40px;min-width:40px;flex:0 0 40px;height:40px;border:0;border-radius:8px;background:transparent;color:#191919;box-shadow:none;margin:0;padding:0}
+.pro-toolbar .tool-btn[aria-pressed="true"]{background:#f2f2f2;border:0;box-shadow:none;color:#191919}
+.pro-toolbar .tool-btn:active,.pro-toolbar #japaneseLyricsFormatBtn:active{background:#f4f4f5}
+.pro-toolbar .tool-btn svg,.pro-toolbar #japaneseLyricsFormatBtn svg{width:19px;height:19px;display:block}
+.pro-toolbar .lyric-glyph{font-size:18px;font-weight:500;width:20px;height:22px}
+.pro-toolbar .lyric-glyph-bold{font-weight:600}
+.pro-toolbar .lyric-glyph-color{color:#ed4056;font-weight:600}
+.pro-toolbar .lyric-glyph-color::after{display:none}
