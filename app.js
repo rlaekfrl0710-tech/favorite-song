@@ -51,6 +51,11 @@
             }
             return html;
         }
+        function resetAutoFormatStatus(){
+            const message=document.getElementById('japaneseLyricsFormatMessage');
+            if(message){message.hidden=false;message.dataset.state='idle';message.textContent='미적용';}
+        }
+        document.addEventListener('input',event=>{if(event.target&&event.target.id==='lyricsEditor')resetAutoFormatStatus();});
         function applyJapaneseLyricsFormat(){
             const editor=document.getElementById('lyricsEditor');
             const message=document.getElementById('japaneseLyricsFormatMessage');
@@ -65,7 +70,7 @@
             }
             editor.innerHTML=formatted;
             message.dataset.state='success';
-            message.textContent=(lines.length/3)+'개 묶음을 자동 정리하고 3줄 서식을 적용했어요.';
+            message.textContent='적용 완료';
             lyricsSelection=null;
             updateLyricsTools();
         }
