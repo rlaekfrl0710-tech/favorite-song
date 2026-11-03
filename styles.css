@@ -241,3 +241,14 @@ body.auth-loading > :not(#appSkeleton):not(script){display:none!important}
 html,body{touch-action:pan-x pan-y;-webkit-text-size-adjust:100%;text-size-adjust:100%}
 input,textarea,select{font-size:16px!important}
 button,a,input,textarea,select{touch-action:manipulation}
+
+/* v12.5: uniform lyric-format controls, tab transitions, sheet dismissal. */
+.pro-toolbar{display:grid;grid-template-columns:repeat(4,40px);gap:10px;align-items:center}
+.pro-toolbar .tool-btn{width:40px;height:40px;display:flex;align-items:center;justify-content:center;padding:0;border-radius:12px}
+.pro-toolbar .tool-btn i{font-size:17px!important;line-height:1;width:20px;text-align:center;display:block}
+.pro-toolbar .lyric-color-icon{color:#ff8787;border-bottom:3px solid #ff8787;padding-bottom:2px}
+#lyricPopup.slide-up{transition:transform .34s cubic-bezier(.22,1,.36,1),visibility 0s linear .34s!important;will-change:transform}
+#lyricPopup.slide-up.active{transition:transform .34s cubic-bezier(.22,1,.36,1),visibility 0s!important}
+#sheetBackdrop{transition:opacity .3s ease;opacity:1}
+#sheetBackdrop.sheet-fading{opacity:0;pointer-events:none}
+@media(prefers-reduced-motion:reduce){#lyricPopup.slide-up,#lyricPopup.slide-up.active,#sheetBackdrop{transition:none!important}}
