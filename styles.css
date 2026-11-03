@@ -207,3 +207,6 @@ body.keyboard-open .tab-content{height:var(--app-visible-height,100%);max-height
 body.keyboard-open #authGate{height:var(--app-visible-height,100%)}
 body.keyboard-open .slide-up{height:var(--app-visible-height,100%);max-height:var(--app-visible-height,100%)}
 @supports(-webkit-touch-callout:none){html,body{height:100%;min-height:0}.scroll-body{-webkit-overflow-scrolling:touch}}
+
+/* Round the bottom toolbar by more than 5% (22px -> 28px). */
+.bottom-nav{border-radius:28px}
