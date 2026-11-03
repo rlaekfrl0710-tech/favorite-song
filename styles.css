@@ -157,3 +157,28 @@
 
 /* All lyric text uses one fixed size, including imported and pasted HTML. */
 #lyricsEditor,#lyricsEditor *,#popContent,#popContent *{font-size:14px!important;font-family:Inter,"Noto Sans KR",sans-serif!important;letter-spacing:normal!important}
+
+/* Standalone app viewport: keep the document fixed and scroll only panels. */
+html,body{width:100%;height:100%;max-width:100%;margin:0;overflow:hidden;overscroll-behavior:none}
+body{position:relative;min-width:0}
+.tab-content{width:100%;height:100vh;height:100dvh;max-height:100dvh;min-width:0;overflow:hidden}
+.header-section{min-width:0;position:relative;z-index:1}
+.header-main,.addon-section,.search-box{min-width:0}
+.search-box input{min-width:0}
+.scroll-body{min-height:0;min-width:0;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable}
+.bottom-nav{bottom:calc(12px + env(safe-area-inset-bottom,0px));max-width:min(680px,calc(100% - 32px));left:16px;right:16px}
+.slide-up{max-height:100dvh;min-height:0;display:flex;flex-direction:column;overscroll-behavior:contain}
+#popContent{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden}
+#sheetBackdrop{overscroll-behavior:none}
+#authGate{height:100vh;height:100dvh;overflow-y:auto;overscroll-behavior:contain;padding:calc(16px + env(safe-area-inset-top,0px)) 16px calc(16px + env(safe-area-inset-bottom,0px))}
+#authForm{min-width:0}
+#tab-add .grid>*{min-width:0}
+@media(max-height:550px){.header-main{padding-top:8px;padding-bottom:8px}.header-title{font-size:23px}.bottom-nav{bottom:calc(4px + env(safe-area-inset-bottom,0px))}.nav-item{padding:7px 0}.scroll-body{padding-top:10px}}
+@media(max-width:360px){.bottom-nav{left:8px;right:8px;max-width:calc(100% - 16px)}.header-main{padding-left:12px;padding-right:12px}.scroll-body{padding-left:12px;padding-right:12px}}
+@supports(height:100dvh){body{height:100dvh}}
+
+/* Visual viewport compensation for on-screen keyboard. */
+body.keyboard-open .tab-content{height:var(--app-visible-height,100dvh);max-height:var(--app-visible-height,100dvh)}
+body.keyboard-open .bottom-nav{display:none}
+body.keyboard-open .slide-up{height:var(--app-visible-height,100dvh);max-height:var(--app-visible-height,100dvh)}
+body.keyboard-open #authGate{height:var(--app-visible-height,100dvh)}
