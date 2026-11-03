@@ -24,9 +24,19 @@
 
         function normalizeJapaneseLyricLines(text){
             return String(text||'').replace(/\r/g,'\n').replace(/\u00a0/g,' ').split('\n')
-                .map(line=>line.replace(/[\u200b-\u200d\ufeff]/g,'').replace(/\[[^\]\r\n]*\]/g,'').replace(/[ \t\u3000]{2,}(?=[（「『(])/g,'').replace(/(?<=[（「『(])[ \t\u3000]+/g,'').replace(/[ \t\u3000]+(?=[）」』)])/g,'').trim())
-                .filter(line=>line&&!/^(?:[-–—_=~*·•.\s]{2,}|\/\/|#|<!--|-->|\/\*|\*\/|\* |※|주석\s*[:：]|메모\s*[:：]|참고\s*[:：]|출처\s*[:：]|작사\s*[:：]|작곡\s*[:：]|편곡\s*[:：]|번역\s*[:：]|가사\s*[:：]|\[[^\]]*(?:verse|chorus|bridge|intro|outro|간주|후렴|1절|2절)[^\]]*\])/.test(line))
-                .map(line=>line.replace(/\s*(?:\/\/|#)\s*(?:주석|메모|참고)\s*[:：].*$/,'').trim()).filter(Boolean);
+                .map(line=>line.replace(/[\u200b-\u200d\ufeff]/g,'')
+                    .replace(/\[[^\]\r\n]*\]/g,'')
+                    .replace(/^\s*(?:\d{1,3}[.)．、]\s+|[①②③④⑤⑥⑦⑧⑨⑩]\s+)/,'')
+                    .replace(/\s*[（(]\s*(?:간주|전주|후주|반주|instrumental|interlude|verse\s*\d*|chorus|bridge|intro|outro)\s*[）)]\s*/gi,'')
+                    .replace(/^[ \t\u3000]*(?:[-–—_=~*·•.]{2,}|[♪♫♬]+)[ \t\u3000]*$/,'')
+                    .replace(/[ \t\u3000]{2,}(?=[（「『(])/g,'')
+                    .replace(/(?<=[（「『(])[ \t\u3000]+/g,'')
+                    .replace(/[ \t\u3000]+(?=[）」』)])/g,'')
+                    .replace(/[ \t\u3000]{2,}/g,' ')
+                    .trim())
+                .filter(line=>line&&!/^(?:\/\/|#|<!--|-->|\/\*|\*\/|\* |※|주석\s*[:：]|메모\s*[:：]|참고\s*[:：]|출처\s*[:：]|작사\s*[:：]|작곡\s*[:：]|편곡\s*[:：]|번역\s*[:：]|가사\s*[:：]|(?:repeat\s*\d+\s*x|\d+\s*[x×]\s*repeat|[x×]\s*\d+))\s*$/i.test(line))
+                .map(line=>line.replace(/\s*(?:\/\/|#)\s*(?:주석|메모|참고)\s*[:：].*$/,'').trim())
+                .filter(Boolean);
         }
         function formatPlainLyrics(text){
             const lines=normalizeJapaneseLyricLines(text);
