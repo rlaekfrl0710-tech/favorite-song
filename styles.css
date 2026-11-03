@@ -276,3 +276,6 @@ button,a,input,textarea,select{touch-action:manipulation}
 .japanese-lyrics-format-message[data-state="error"]{color:#c24141}
 .japanese-lyrics-format-message[data-state="success"]{color:#47735b}
 .japanese-lyrics-format-message[hidden]{display:none}
+
+/* v12.9: compact favorites filter pill */
+#pill-FAV{flex:0 0 40px;width:40px;min-width:40px}
