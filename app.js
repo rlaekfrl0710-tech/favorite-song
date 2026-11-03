@@ -40,33 +40,36 @@
         }
         function formatPlainLyrics(text){
             const lines=normalizeJapaneseLyricLines(text);
-            if(lines.length<2)return '';
+            if(!lines.length)return '';
             const isCjk=line=>/[\u3040-\u30ff\u3400-\u9fff]/.test(line);
             const isHangul=line=>/[가-힣]/.test(line);
             const isLatin=line=>/[A-Za-z\u00c0-\u024f]/.test(line);
-            const isOriginal=line=>isCjk(line)||(isLatin(line)&&!isHangul(line));
-            const isReading=line=>isHangul(line)||(isLatin(line)&&!isCjk(line));
-            const isMeaning=line=>isHangul(line)||(isLatin(line)&&!isCjk(line));
+            const isEnglish=line=>isLatin(line)&&!isCjk(line)&&!isHangul(line);
+            const isOriginal=line=>isCjk(line)||isEnglish(line);
+            const isReading=line=>isHangul(line)||isEnglish(line);
+            const isMeaning=line=>isHangul(line);
             const n=lines.length,dp=Array(n+1).fill(null);
             dp[n]={score:0,groups:[]};
-            for(let i=n-2;i>=0;i--){
-                if(!isOriginal(lines[i])||!isReading(lines[i+1]))continue;
-                for(const size of [2,3]){
-                    if(i+size>n||!dp[i+size])continue;
-                    if(size===3&&!isMeaning(lines[i+2]))continue;
-                    let score=dp[i+size].score+10;
-                    if(size===3){
-                        score+=isHangul(lines[i+2])?3:0;
-                        if(isOriginal(lines[i+2])&&!isHangul(lines[i+2]))score-=6;
-                    }else{
-                        score+=i+2===n||isCjk(lines[i+2])?3:0;
+            for(let i=n-1;i>=0;i--){
+                if(!isOriginal(lines[i]))continue;
+                const candidates=[];
+                if(isEnglish(lines[i]))candidates.push({size:1,score:12});
+                if(i+1<n&&isReading(lines[i+1])){
+                    if(isCjk(lines[i])||isHangul(lines[i+1])){
+                        candidates.push({size:2,score:isCjk(lines[i])?24:20});
+                        if(i+2<n&&isMeaning(lines[i+2]))candidates.push({size:3,score:isCjk(lines[i])?35:30});
                     }
-                    if(!dp[i]||score>dp[i].score)dp[i]={score,groups:[lines.slice(i,i+size),...dp[i+size].groups]};
+                }
+                for(const candidate of candidates){
+                    const next=dp[i+candidate.size];
+                    if(!next)continue;
+                    const score=candidate.score+next.score;
+                    if(!dp[i]||score>dp[i].score)dp[i]={score,groups:[lines.slice(i,i+candidate.size),...next.groups]};
                 }
             }
             if(!dp[0])return '';
             const clean=line=>escapeText(line);
-            return dp[0].groups.map(group=>'<div style="margin-bottom:24px;line-height:1.5"><div style="color:#1c1e21;font-weight:700">'+clean(group[0])+'</div><div style="color:#e54848;font-weight:700">'+clean(group[1])+'</div>'+(group[2]?'<div style="color:#9ca3af;font-weight:400">'+clean(group[2])+'</div>':'')+'</div>').join('');
+            return dp[0].groups.map(group=>'<div style="margin-bottom:24px;line-height:1.5"><div style="color:#1c1e21;font-weight:700">'+clean(group[0])+'</div>'+(group[1]?'<div style="color:#e54848;font-weight:700">'+clean(group[1])+'</div>':'')+(group[2]?'<div style="color:#9ca3af;font-weight:400">'+clean(group[2])+'</div>':'')+'</div>').join('');
         }
         function resetAutoFormatStatus(){
             const message=document.getElementById('japaneseLyricsFormatMessage');
@@ -82,7 +85,7 @@
             message.hidden=false;
             if(!formatted){
                 message.dataset.state='error';
-                message.textContent=!lines.length?'가사를 먼저 입력해 주세요.':'원문 → 발음 → (선택) 뜻 순서를 확인해 주세요. 총 '+lines.length+'줄입니다.';
+                message.textContent=!lines.length?'가사를 먼저 입력해 주세요.':'원문(영어 단독 가능) → 발음 → (선택) 뜻 순서를 확인해 주세요. 총 '+lines.length+'줄입니다.';
                 return;
             }
             editor.innerHTML=formatted;
