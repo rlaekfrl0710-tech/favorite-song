@@ -32,7 +32,7 @@
             const lines=normalizeJapaneseLyricLines(text);
             if(lines.length<3||lines.length%3)return '';
             for(let i=0;i<lines.length;i+=3){
-                if(!/[\u3040-\u30ff\u3400-\u9fff]/.test(lines[i])||!/[가-힣]/.test(lines[i+1])||!/[가-힣]/.test(lines[i+2]))return '';
+                if(!/[\u3040-\u30ff\u3400-\u9fffA-Za-z]/.test(lines[i])||!/[가-힣A-Za-z]/.test(lines[i+1])||!/[가-힣A-Za-z]/.test(lines[i+2]))return '';
             }
             const clean=line=>escapeText(line);
             let html='';
@@ -50,7 +50,7 @@
             message.hidden=false;
             if(!formatted){
                 message.dataset.state='error';
-                message.textContent=!lines.length?'가사를 먼저 입력해 주세요.':lines.length%3?'일본어·발음·해석을 3줄씩 입력해 주세요. 현재 '+lines.length+'줄입니다.':'3줄씩 일본어 원문 → 한글 발음 → 한글 해석 순서인지 확인해 주세요.';
+                message.textContent=!lines.length?'가사를 먼저 입력해 주세요.':lines.length%3?'일본어·발음·해석을 3줄씩 입력해 주세요. 현재 '+lines.length+'줄입니다.':'3줄씩 원문(일본어·영어) → 발음 → 해석 순서인지 확인해 주세요.';
                 return;
             }
             editor.innerHTML=formatted;
