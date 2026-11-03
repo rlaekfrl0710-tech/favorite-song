@@ -311,3 +311,8 @@ body.keyboard-open #tab-add #lyricsEditor{scroll-margin-bottom:16px}
 .pro-toolbar #japaneseLyricsFormatBtn:active{background:#363636;color:#fff}
 .pro-toolbar #japaneseLyricsFormatMessage{display:block;min-width:0;flex:1;margin:0;line-height:1.4;font-size:12px;overflow-wrap:anywhere}
 .pro-toolbar #japaneseLyricsFormatMessage[data-state="idle"]{color:#8c9199}
+
+/* v14.7: one-click undo for the last successful auto-format. */
+.pro-toolbar #autoFormatUndoBtn{flex:0 0 auto;border:0;background:transparent;color:#656b76;font-size:12px;font-weight:600;padding:8px 2px;white-space:nowrap}
+.pro-toolbar #autoFormatUndoBtn[hidden]{display:none}
+.pro-toolbar #autoFormatUndoBtn:active{color:#191919}

@@ -71,11 +71,26 @@
             const clean=line=>escapeText(line);
             return dp[0].groups.map(group=>'<div style="margin-bottom:24px;line-height:1.5"><div style="color:#1c1e21;font-weight:700">'+clean(group[0])+'</div>'+(group[1]?'<div style="color:#e54848;font-weight:700">'+clean(group[1])+'</div>':'')+(group[2]?'<div style="color:#9ca3af;font-weight:400">'+clean(group[2])+'</div>':'')+'</div>').join('');
         }
+        let autoFormatUndoHtml=null;
+        function updateAutoFormatUndoButton(){
+            const button=document.getElementById('autoFormatUndoBtn');
+            if(button)button.hidden=autoFormatUndoHtml===null;
+        }
+        function undoAutoFormat(){
+            if(autoFormatUndoHtml===null)return;
+            const editor=document.getElementById('lyricsEditor');
+            editor.innerHTML=autoFormatUndoHtml;
+            autoFormatUndoHtml=null;
+            updateAutoFormatUndoButton();
+            resetAutoFormatStatus();
+            lyricsSelection=null;
+            updateLyricsTools();
+        }
         function resetAutoFormatStatus(){
             const message=document.getElementById('japaneseLyricsFormatMessage');
             if(message){message.hidden=false;message.dataset.state='idle';message.textContent='미적용';}
         }
-        document.addEventListener('input',event=>{if(event.target&&event.target.id==='lyricsEditor')resetAutoFormatStatus();});
+        document.addEventListener('input',event=>{if(event.target&&event.target.id==='lyricsEditor'){autoFormatUndoHtml=null;updateAutoFormatUndoButton();resetAutoFormatStatus();}});
         function applyJapaneseLyricsFormat(){
             const editor=document.getElementById('lyricsEditor');
             const message=document.getElementById('japaneseLyricsFormatMessage');
@@ -88,7 +103,9 @@
                 message.textContent=!lines.length?'가사를 먼저 입력해 주세요.':'원문(영어 단독 가능) → 발음 → (선택) 뜻 순서를 확인해 주세요. 총 '+lines.length+'줄입니다.';
                 return;
             }
+            autoFormatUndoHtml=editor.innerHTML;
             editor.innerHTML=formatted;
+            updateAutoFormatUndoButton();
             message.dataset.state='success';
             message.textContent='적용 완료';
             lyricsSelection=null;
@@ -129,6 +146,9 @@
             document.getElementById('editingId').value = '';
             document.querySelectorAll('#tab-add input[type="text"]').forEach(i => i.value = '');
             document.getElementById('lyricsEditor').innerHTML = '';
+            autoFormatUndoHtml=null;
+            updateAutoFormatUndoButton();
+            resetAutoFormatStatus();
             document.getElementById('add-page-title').innerText = "곡 추가";
             document.getElementById('saveBtn').innerText = "저장하기";
             document.getElementById('cancelEditBtn').classList.add('hidden');
