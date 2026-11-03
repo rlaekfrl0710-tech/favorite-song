@@ -246,3 +246,24 @@ body{position:relative!important;inset:auto!important;height:100dvh!important;mi
 body.keyboard-open .tab-content{height:var(--app-visible-height,100dvh)!important;max-height:var(--app-visible-height,100dvh)!important}
 body.keyboard-open #authGate{height:var(--app-visible-height,100dvh)!important;max-height:var(--app-visible-height,100dvh)!important}
 @supports not (height:100dvh){html,body,.tab-content{height:100vh!important;max-height:100vh!important}}
+
+/* v10.9: one measured iOS app shell, rather than conflicting 100%/dvh rules. */
+:root{--app-shell-height:100dvh;--app-safe-top:env(safe-area-inset-top,0px);--app-safe-bottom:env(safe-area-inset-bottom,0px)}
+html{position:fixed!important;inset:0!important;width:100%!important;height:var(--app-shell-height)!important;min-height:0!important;max-height:none!important;overflow:hidden!important}
+body{position:fixed!important;inset:0 auto auto 0!important;width:100%!important;height:var(--app-shell-height)!important;min-height:0!important;max-height:none!important;overflow:hidden!important;margin:0!important}
+.tab-content,.tab-content.active{height:100%!important;max-height:100%!important;min-height:0!important}
+.header-section{flex:0 0 auto}
+@media(display-mode:standalone),(display-mode:fullscreen){
+.header-section{padding-top:max(62px,var(--app-safe-top))!important}
+}
+.scroll-body{flex:1 1 0!important;min-height:0!important;overflow-x:hidden;overflow-y:auto;padding-bottom:calc(112px + var(--app-safe-bottom));overscroll-behavior:contain}
+.bottom-nav{position:absolute!important;bottom:calc(12px + var(--app-safe-bottom))!important;left:50%!important;right:auto!important;max-width:275px!important;transform:translateX(-50%)!important;border-radius:9999px!important}
+#authGate{height:100%!important;max-height:100%!important}
+.slide-up{position:absolute!important;bottom:0!important;max-height:100%!important}
+#sheetBackdrop{position:absolute!important;inset:0!important}
+body.keyboard-open .tab-content{height:100%!important;max-height:100%!important}
+body.keyboard-open #authGate{height:100%!important;max-height:100%!important}
+body.keyboard-open .slide-up{max-height:100%!important}
+html,body{touch-action:pan-x pan-y;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+button,a,input,textarea,select,[contenteditable],.nav-item,.song-card,.filter-pill{touch-action:manipulation}
+input:not([type=hidden]):not([type=checkbox]):not([type=radio]),textarea,select,[contenteditable=true]{font-size:16px!important}
