@@ -28,7 +28,7 @@
                     .replace(/\[[^\]\r\n]*\]/g,'')
                     .replace(/^\s*(?:\d{1,3}[.)．、]\s+|[①②③④⑤⑥⑦⑧⑨⑩]\s+)/,'')
                     .replace(/\s*[（(]\s*(?:간주|전주|후주|반주|instrumental|interlude|verse\s*\d*|chorus|bridge|intro|outro)\s*[）)]\s*/gi,'')
-                    .replace(/^[ \t\u3000]*(?:[-–—_=~*·•.]{2,}|[♪♫♬]+)[ \t\u3000]*$/,'')
+                    .replace(/^[ \t\u3000]*(?:[_=~*·•.]{2,}|[♪♫♬]+)[ \t\u3000]*$/,'')
                     .replace(/[ \t\u3000]{2,}(?=[（「『(])/g,'')
                     .replace(/(?<=[（「『(])[ \t\u3000]+/g,'')
                     .replace(/[ \t\u3000]+(?=[）」』)])/g,'')
@@ -42,7 +42,7 @@
             const lines=normalizeJapaneseLyricLines(text);
             if(lines.length<3||lines.length%3)return '';
             for(let i=0;i<lines.length;i+=3){
-                if(!/[\u3040-\u30ff\u3400-\u9fffA-Za-z]/.test(lines[i])||!/[가-힣A-Za-z]/.test(lines[i+1])||!/[가-힣A-Za-z]/.test(lines[i+2]))return '';
+                if(!/[\u3040-\u30ff\u3400-\u9fffA-Za-z\u00c0-\u024f]/.test(lines[i])||!/[가-힣A-Za-z\u00c0-\u024f\u0300-\u036f\u00fc\u00dc\u3400-\u9fff]/.test(lines[i+1])||!/[가-힣A-Za-z\u00c0-\u024f\u3400-\u9fff]/.test(lines[i+2]))return '';
             }
             const clean=line=>escapeText(line);
             let html='';
