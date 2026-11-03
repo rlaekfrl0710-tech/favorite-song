@@ -1,0 +1,19 @@
+{
+  "name": "My 노래방",
+  "short_name": "노래방",
+  "description": "나만의 노래방 곡 목록",
+  "lang": "ko",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "icons": [
+    {
+      "src": "/karaoke-icon-v2.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

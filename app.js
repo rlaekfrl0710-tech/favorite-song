@@ -201,3 +201,22 @@
         async function flushCloud(){if(!cloudReady||cloudBusy){cloudAgain=true;return;}if(!cloudPending.size)return;cloudBusy=true;const ids=[...cloudPending],changes={};ids.forEach(id=>{const song=songs.find(s=>String(s.id)===id);changes[id]={version:cloudVersions[id]||0,song:song||null,deleted:!song};cloudPending.delete(id);});cloudMessage('Google에 저장 중…');try{const result=await cloudCall('write',{changes});Object.keys(result.records||{}).forEach(id=>{const r=result.records[id];cloudVersions[id]=r.version;if(!cloudPending.has(id)){songs=songs.filter(s=>String(s.id)!==id);if(!r.deleted)songs.push(r.song);if(r.deleted)delete cloudBaseline[id];else cloudBaseline[id]=JSON.stringify(r.song);}});localStorage.setItem('karaoke_v5_data',JSON.stringify(songs));persistCloudMeta();renderList();cloudMessage(result.conflict?'다른 기기의 최신 변경을 반영했어요':'Google 저장 완료');}catch(e){ids.forEach(id=>cloudPending.add(id));persistCloudMeta();cloudMessage('저장 실패 · 기기 기록 보존 · 다시 시도해 주세요');}finally{cloudBusy=false;}if(cloudAgain){cloudAgain=false;flushCloud();}}
         document.addEventListener('visibilitychange',()=>{if(!document.hidden&&cloudReady&&!cloudBusy&&!cloudPending.size)initializeCloud();});
     
+/* Keep the fixed app viewport aligned with the visible area when keyboards open. */
+(function setupAppViewport(){
+  const root=document.documentElement;
+  let frame=0;
+  function syncViewport(){
+    cancelAnimationFrame(frame);
+    frame=requestAnimationFrame(()=>{
+      const viewport=window.visualViewport;
+      const visibleHeight=viewport?viewport.height:window.innerHeight;
+      root.style.setProperty('--app-visible-height',Math.max(1,visibleHeight)+'px');
+      const keyboardOpen=viewport&&window.innerHeight-visibleHeight>140;
+      document.body.classList.toggle('keyboard-open',!!keyboardOpen);
+    });
+  }
+  syncViewport();
+  window.addEventListener('resize',syncViewport,{passive:true});
+  window.visualViewport?.addEventListener('resize',syncViewport,{passive:true});
+  window.visualViewport?.addEventListener('scroll',syncViewport,{passive:true});
+})();
