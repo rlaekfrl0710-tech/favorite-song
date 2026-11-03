@@ -221,3 +221,10 @@
   window.visualViewport?.addEventListener('resize',syncViewport,{passive:true});
   window.visualViewport?.addEventListener('scroll',syncViewport,{passive:true});
 })();
+
+/* v12.0: suppress pinch and double-tap page zoom without blocking normal scrolling. */
+document.addEventListener('gesturestart',e=>e.preventDefault(),{passive:false});
+document.addEventListener('gesturechange',e=>e.preventDefault(),{passive:false});
+let zoomTouchEnd=0;
+document.addEventListener('touchend',e=>{if(e.changedTouches.length!==1)return;const now=Date.now();if(now-zoomTouchEnd<300&&e.target.closest('button,a,input,textarea,select')===null)e.preventDefault();zoomTouchEnd=now;},{passive:false});
+document.addEventListener('touchmove',e=>{if(e.touches.length>1)e.preventDefault();},{passive:false});
