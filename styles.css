@@ -269,3 +269,10 @@ button,a,input,textarea,select{touch-action:manipulation}
 .japanese-lyrics-format{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:38px;padding:0 13px;margin:0 0 12px;border:1px solid #e5e7eb;border-radius:11px;background:#f7f7f8;color:#383b42;font-size:13px;font-weight:600;cursor:pointer}
 .japanese-lyrics-format i{font-size:13px;color:#e54848}
 .japanese-lyrics-format:active{background:#ededf0}
+
+/* v12.8: inline formatting feedback */
+.japanese-lyrics-format{margin-bottom:6px}
+.japanese-lyrics-format-message{margin:0 0 12px;padding:0 2px;font-size:12px;line-height:1.5;color:#6b7280}
+.japanese-lyrics-format-message[data-state="error"]{color:#c24141}
+.japanese-lyrics-format-message[data-state="success"]{color:#47735b}
+.japanese-lyrics-format-message[hidden]{display:none}
