@@ -195,7 +195,7 @@
                 existing?'':'',
                 existing?'아래는 내가 제공하는 가사 원문이야.':'',
                 existing?existing:''
-            ].filter((line,index,arr)=>line!==''||index<4).join('\\n');
+            ].filter((line,index,arr)=>line!==''||index<4).join('\n');
             const url='https://chatgpt.com/?q='+encodeURIComponent(prompt);
             const opened=window.open(url,'_blank','noopener,noreferrer');
             if(!opened)window.location.href=url;
