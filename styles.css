@@ -1,140 +1,383 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>My 노래방</title>
+
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Noto+Sans+KR:wght@400;700&display=swap');
+        
+        :root {
+            --ios-bg: #FFFFFF;
+            --ios-header-bg: rgba(255, 255, 255, 0.96);
+            --cool-gray-bg: #F2F4F7;
+            --cool-gray-dark: #E5E8EB;
+            --ios-text: #1C1E21;
+            --ios-subtext: #8E96A3;
+            --ios-heart: #FF8787;
+            --side-padding: 24px;
+        }
+
+        body { font-family: 'Inter', 'Noto Sans KR', sans-serif; background-color: var(--ios-bg); color: var(--ios-text); letter-spacing: -0.03em; -webkit-tap-highlight-color: transparent; margin: 0; overflow: hidden; }
+
+        .tab-content { display: none; flex-direction: column; height: 100vh; }
+        .tab-content.active { display: flex; }
+
+        /* 헤더 */
+        .header-section { flex-shrink: 0; background: var(--ios-header-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 0.5px solid var(--cool-gray-dark); padding-top: env(safe-area-inset-top); }
+        .header-main { padding: 20px var(--side-padding) 10px; display: flex; justify-content: space-between; align-items: center; }
+        .header-title { font-size: 28px; font-weight: 800; }
+        .edit-btn { color: #007AFF; font-weight: 600; font-size: 16px; }
+
+        .scroll-body { flex: 1; overflow-y: auto; padding: 20px var(--side-padding) 140px; }
+
+        /* 검색 & 필터 */
+        .search-box { background: var(--cool-gray-bg); border-radius: 12px; padding: 10px 16px; display: flex; align-items: center; margin: 0 var(--side-padding) 12px; }
+        .category-scroll { display: flex; gap: 6px; overflow-x: auto; padding: 0 var(--side-padding) 15px; }
+        .category-scroll::-webkit-scrollbar { display: none; }
+        .filter-pill { flex: 0 0 65px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 16px; font-size: 13px; font-weight: 600; background: var(--cool-gray-bg); color: var(--ios-subtext); }
+        .filter-pill.active { background: var(--ios-text); color: #fff; }
+
+        /* 카드 */
+        .song-card-wrapper { display: flex; align-items: center; gap: 0; margin-bottom: 12px; }
+        .song-card { flex: 1; background: var(--cool-gray-bg); border-radius: 20px; padding: 18px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        .num-label { font-size: 10px; color: var(--ios-subtext); font-weight: 700; margin-right: 3px; }
+        .num-val { font-size: 13px; color: #000; font-weight: 800; font-style: italic; }
+
+        .delete-checkbox { width: 0; height: 24px; opacity: 0; overflow: hidden; display: flex; justify-content: center; align-items: center; flex-shrink: 0; transition: all 0.25s ease; }
+        .edit-mode .delete-checkbox { width: 40px; opacity: 1; margin-right: 8px; border: 2px solid var(--cool-gray-dark); border-radius: 50%; }
+        .delete-checkbox.checked { background: #FF3B30; border-color: #FF3B30; color: white; }
+
+        /* 꾸미기 툴바 */
+        .pro-toolbar { display: flex; gap: 10px; margin-bottom: 12px; }
+        .tool-btn { background: #fff; border: 1px solid var(--cool-gray-dark); border-radius: 10px; width: 46px; height: 46px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+
+        /* 입력 폼 */
+        .ios-input { background: var(--cool-gray-bg); border-radius: 14px; padding: 16px; width: 100%; outline: none; border: none; font-size: 16px; margin-bottom: 10px; }
+        #lyricsEditor { min-height: 250px; background: var(--cool-gray-bg); border-radius: 18px; padding: 20px; outline: none; font-size: 14px !important; line-height: 1.6; color: var(--ios-text); }
+
+        /* 팝업 가사 폰트 */
+        #popContent { font-size: 14px !important; line-height: 1.7; -webkit-user-select: text; user-select: text; }
+
+        /* 하단 내비 */
+        .bottom-nav { position: fixed; bottom: 30px; left: 24px; right: 24px; background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(20px); border-radius: 24px; display: flex; padding: 6px; z-index: 2000; box-shadow: 0 8px 30px rgba(0,0,0,0.11); border: 1px solid var(--cool-gray-dark); }
+        .nav-item { flex: 1; padding: 12px 0; text-align: center; color: var(--ios-subtext); border-radius: 20px; font-size: 18px; }
+        .nav-item.active { background: var(--ios-text); color: #fff; }
+
+        /* 팝업 */
+        .slide-up { position: fixed; inset: 0; background: #fff; z-index: 3000; transform: translate3d(0, 100%, 0); border-radius: 30px 30px 0 0; transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); }
+        .slide-up.active { transform: translate3d(0, 44px, 0); }
+        
+        #toast { position: fixed; top: 80px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: #fff; padding: 10px 24px; border-radius: 24px; font-size: 14px; z-index: 4000; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+
+/* My 노래방: safe areas, touch gestures and restrained motion. */
+*{box-sizing:border-box}
+:root{--side-padding:20px}
+.tab-content{height:100dvh;max-width:720px;margin:0 auto;min-height:0}
+.header-main{padding-top:18px;padding-bottom:14px}
+.header-title{font-size:28px;line-height:1.25;letter-spacing:-.04em}
+.scroll-body{min-height:0;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding-top:16px;padding-bottom:calc(112px + env(safe-area-inset-bottom))}
+.song-card-wrapper{position:relative;isolation:isolate;overflow:hidden;border-radius:18px;margin-bottom:10px}
+.song-card{position:relative;z-index:1;min-width:0;width:100%;min-height:88px;border-radius:18px;padding:16px;transition:transform .24s cubic-bezier(.22,1,.36,1);touch-action:pan-y}
+.swipe-delete{position:absolute;inset:0 0 0 auto;width:82px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;background:#ff3b30;color:white;font:inherit;font-size:12px;border:0;cursor:pointer}
+.swipe-open .song-card{transform:translateX(-82px)}
+.edit-mode .delete-checkbox{width:26px;height:26px;min-width:26px;margin-right:12px;margin-left:2px}
+.edit-mode .song-card{width:auto}
+#deleteBar{position:fixed;z-index:2100;left:20px;right:20px;bottom:calc(94px + env(safe-area-inset-bottom));max-width:680px;margin:auto;display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:#fff;border:1px solid #e5e5ea;border-radius:16px;box-shadow:0 6px 24px #0000000d;font-size:14px}
+#deleteBar[hidden],#sheetBackdrop[hidden]{display:none}
+#deleteBar button{background:#ff3b30;color:white;border-radius:10px;padding:9px 14px;font-weight:600}
+#deleteBar button:disabled{opacity:.35;cursor:default}
+.selecting #mainList{padding-bottom:calc(190px + env(safe-area-inset-bottom))}
+.bottom-nav{bottom:calc(12px + env(safe-area-inset-bottom));left:20px;right:20px;max-width:680px;margin:auto;border-radius:22px;box-shadow:0 5px 24px #0000000c}
+.nav-item{cursor:pointer;transition:background-color .2s ease,color .2s ease}
+#sheetBackdrop{position:fixed;inset:0;z-index:2900;background:rgba(0,0,0,.40);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);animation:backdrop-in .2s ease}
+.slide-up{inset:auto 0 0;max-width:720px;margin:auto;height:calc(100dvh - max(24px,env(safe-area-inset-top)));border-radius:26px 26px 0 0;transform:translate3d(0,105%,0);visibility:hidden;transition:transform .32s cubic-bezier(.22,1,.36,1),visibility .32s;overflow:hidden;box-shadow:0 -8px 40px #00000010}
+.slide-up.active{transform:translate3d(0,0,0);visibility:visible}
+#sheetHandle{height:28px;display:grid;place-items:center;flex:none;touch-action:none;cursor:grab}
+#sheetHandle span{width:36px;height:5px;border-radius:99px;background:#d1d1d6}
+#lyricPopup>header{padding:4px 20px 14px;gap:16px}
+#lyricPopup>header>div:last-child{gap:12px}
+#lyricPopup header button{min-width:30px;min-height:36px;display:grid;place-items:center;transition:opacity .15s ease}
+.sheet-close{font-size:26px;line-height:1;color:#8e8e93}
+#popTitle{font-size:22px;line-height:1.35}
+#popContent{min-height:0;padding:20px;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+#lyricPopup>div:last-child{padding:16px 20px calc(20px + env(safe-area-inset-bottom))}
+.ios-input{padding:15px 16px;line-height:1.5}
+.cloud-retry{font-size:13px;color:#007aff;margin-top:8px}
+#cloudStatus{font-size:13px;line-height:1.6;color:var(--ios-subtext)}
+#saveBtn{font-size:17px;padding:17px;border-radius:16px}
+@keyframes backdrop-in{from{opacity:0}to{opacity:1}}
+@media(prefers-reduced-motion:reduce){.song-card,.slide-up,.nav-item{transition:none}#sheetBackdrop{animation:none}}
+        .auth-locked > :not(#authGate):not(script) { display:none !important; }
+        #authGate { position:fixed; inset:0; display:grid; place-items:center; padding:24px; background:#f7f7f9; z-index:1000; }
+        #authGate[hidden] { display:none; }
+        #authForm { width:100%; max-width:340px; text-align:center; }
+        .auth-eyebrow { color:#888; font-size:11px; letter-spacing:.14em; margin-bottom:12px; }
+        #authTitle { font-size:28px; font-weight:750; margin-bottom:12px; }
+        #authDescription { white-space:pre-line; color:#777; font-size:14px; line-height:1.6; margin-bottom:28px; }
+        #authPassword, #authSubmit { width:100%; height:50px; border-radius:14px; padding:0 16px; font-size:15px; }
+        #authPassword { background:#fff; border:1px solid #e5e5e8; }
+        #authSubmit { margin-top:12px; background:#202024; color:#fff; font-weight:600; transition:opacity .18s; }
+        #authSubmit:disabled { opacity:.5; }
+        #authMessage { min-height:24px; margin-top:14px; color:#a23c46; font-size:13px; }
     
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#ffffff">
-    <meta name="mobile-web-app-capable" content="yes">
-    <link rel="manifest" href="/manifest.webmanifest">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="icon" type="image/png" href="/karaoke-icon-v2.png">
-    <link rel="apple-touch-icon" href="/karaoke-icon-v2.png">
+/* Consistent song form and settings controls. */
+.swipe-delete{inset:auto 12px auto auto;top:50%;transform:translateY(-50%);width:56px;height:56px;border-radius:50%;font-size:18px;gap:0;transition:background-color .18s ease,scale .18s ease}
+.swipe-delete:active{scale:.94;background:#e9342a}
+.genre-control{display:flex;gap:4px;padding:4px;background:var(--cool-gray-bg);border-radius:14px;margin-bottom:24px}
+.genre-control button{min-height:40px;padding:8px 12px!important;font-size:13px!important;border-radius:10px;transition:background-color .18s ease,color .18s ease}
+.form-field{display:block;margin-bottom:16px;min-width:0}
+.form-field>span,.lyrics-label{display:block;font-size:13px;font-weight:600;line-height:20px;margin-bottom:7px;color:#555e68}
+.field-required,.lyrics-label>span{font-size:11px;font-weight:400;color:var(--ios-subtext);margin-left:4px}
+#tab-add .ios-input{display:block;margin:0;min-height:50px;border:1px solid transparent;border-radius:14px;padding:13px 15px}
+#tab-add .ios-input[aria-invalid="true"]{border-color:#edb2b2;background:#fff5f5}
+#tab-add .grid{margin-bottom:4px;gap:12px}
+.pro-toolbar{gap:8px;margin-bottom:10px}
+.tool-btn{width:40px;height:40px;border-radius:12px;background:var(--cool-gray-bg);border-color:transparent;transition:background-color .18s ease,transform .18s ease}
+.tool-btn:active{transform:scale(.95);background:var(--cool-gray-dark)}
+#lyricsEditor{min-height:220px;border-radius:16px;padding:16px;overflow-wrap:anywhere}
+#lyricsEditor:empty:before{content:attr(data-placeholder);color:var(--ios-subtext);pointer-events:none}
+.form-message{font-size:13px;color:#bc4343;line-height:1.5;margin-top:10px}
+.form-message:empty{display:none}
+#saveBtn{margin-top:20px;font-weight:600;transition:opacity .18s ease,transform .18s ease}
+#saveBtn:active{opacity:.85;transform:scale(.99)}
+.settings-body{display:flex;flex-direction:column;gap:20px}
+.settings-group{background:var(--cool-gray-bg);border-radius:18px;overflow:hidden;flex-shrink:0}
+.settings-row{position:relative;display:flex;align-items:center;gap:12px;width:100%;min-height:56px;padding:15px 16px;background:transparent;text-align:left;font:inherit;font-size:15px;line-height:24px;cursor:pointer;border:none;transition:background-color .18s ease}
+.settings-row+.settings-row:before{content:'';position:absolute;left:48px;right:16px;top:0;height:1px;background:#e2e5e9}
+.settings-row>i:first-child{width:20px;text-align:center;font-size:16px;color:#737e8c;flex:none}
+.settings-row>span{flex:1}
+.settings-row .row-chevron{font-size:10px;color:#a4abb4;flex:none}
+.settings-row:active{background:#e7eaee}
+.upload-row input{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden}
+.upload-row:focus-within{background:#e7eaee}
+.danger-row,.danger-row>i:first-child{color:#df4545}
+.sync-summary{display:flex;align-items:center;gap:12px;padding:16px 16px 4px}
+.sync-summary>i{font-size:16px;width:20px;color:#737e8c}
+#cloudStatus{font-size:13px;line-height:20px}
+.settings-version{text-align:center;font-size:11px;letter-spacing:.02em;color:var(--ios-subtext);margin:4px 0 12px}
+@media(max-width:380px){:root{--side-padding:16px}.settings-row{padding-left:14px;padding-right:14px}}
+@media(prefers-reduced-motion:reduce){.swipe-delete,.genre-control button,.tool-btn,#saveBtn,.settings-row{transition:none}}
 
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/styles.css?v=15.3">
-</head>
-<body onload="startAuth()" class="auth-locked auth-loading">
-    <section id="authGate" aria-labelledby="authTitle"><form id="authForm" onsubmit="submitAuth(event)"><h1 id="authTitle">My 노래방</h1><p id="authDescription">로그인 상태를 확인하고 있어요.</p><input id="authPassword" type="password" autocomplete="current-password" placeholder="비밀번호" aria-label="비밀번호" required minlength="6" maxlength="128" hidden><button id="authSubmit" type="submit" hidden>로그인</button><p id="authMessage" role="status"></p></form></section>
+.tool-btn[aria-pressed="true"]{background:#e2e6ec;box-shadow:inset 0 0 0 1px #cbd1da;color:var(--ios-text)}
 
-    <div id="appSkeleton" aria-label="노래 목록을 불러오는 중" role="status">
-      <div class="skeleton-header">
-        <div class="skeleton-header-main"><span class="skeleton-title skeleton-shimmer"></span><span class="skeleton-edit skeleton-shimmer"></span></div>
-        <div class="skeleton-search skeleton-shimmer"></div>
-        <div class="skeleton-pills"><span class="skeleton-shimmer"></span><span class="skeleton-shimmer"></span><span class="skeleton-shimmer"></span><span class="skeleton-shimmer"></span></div>
-      </div>
-      <div class="skeleton-list"><div class="skeleton-song"><div><i class="skeleton-shimmer"></i><i class="skeleton-shimmer"></i></div><span class="skeleton-shimmer"></span></div><div class="skeleton-song"><div><i class="skeleton-shimmer"></i><i class="skeleton-shimmer"></i></div><span class="skeleton-shimmer"></span></div><div class="skeleton-song"><div><i class="skeleton-shimmer"></i><i class="skeleton-shimmer"></i></div><span class="skeleton-shimmer"></span></div><div class="skeleton-song"><div><i class="skeleton-shimmer"></i><i class="skeleton-shimmer"></i></div><span class="skeleton-shimmer"></span></div><div class="skeleton-song"><div><i class="skeleton-shimmer"></i><i class="skeleton-shimmer"></i></div><span class="skeleton-shimmer"></span></div><div class="skeleton-song"><div><i class="skeleton-shimmer"></i><i class="skeleton-shimmer"></i></div><span class="skeleton-shimmer"></span></div></div>
-    </div>
-    <div id="toast" role="status" aria-live="polite"></div>
+/* All lyric text uses one fixed size, including imported and pasted HTML. */
+#lyricsEditor,#lyricsEditor *,#popContent,#popContent *{font-size:14px!important;font-family:Inter,"Noto Sans KR",sans-serif!important;letter-spacing:normal!important}
 
-    <section id="tab-home" class="tab-content active">
-        <header class="header-section">
-            <div class="header-main">
-                <h1 class="header-title">My 노래방</h1>
-                <button id="main-edit-toggle" onclick="toggleEditMode()" class="edit-btn">편집</button>
-            </div>
-            <div class="addon-section">
-                <div class="search-box">
-                    <i class="fas fa-search text-gray-400 mr-2"></i>
-                    <input type="text" id="searchInput" oninput="renderList()" placeholder="제목, 가수, 발음 검색" class="bg-transparent border-none outline-none w-full">
-                </div>
-                <div class="category-scroll">
-                    <button onclick="setFilter('FAV')" id="pill-FAV" class="filter-pill"><i class="fas fa-heart text-[var(--ios-heart)]"></i></button>
-                    <button onclick="setFilter('ALL')" id="pill-ALL" class="filter-pill active">전체</button>
-                    <button onclick="setFilter('J-POP')" id="pill-J-POP" class="filter-pill">J-POP</button>
-                    <button onclick="setFilter('K-POP')" id="pill-K-POP" class="filter-pill">K-POP</button>
-                    <button onclick="setFilter('ETC')" id="pill-ETC" class="filter-pill">기타</button>
-                </div>
-            </div>
-        </header>
-        <div class="scroll-body" id="mainList"></div>
-    </section>
+/* Standalone app viewport: keep the document fixed and scroll only panels. */
+html,body{width:100%;height:100%;max-width:100%;margin:0;overflow:hidden;overscroll-behavior:none}
+body{position:relative;min-width:0}
+.tab-content{width:100%;height:100vh;height:100dvh;max-height:100dvh;min-width:0;overflow:hidden}
+.header-section{min-width:0;position:relative;z-index:1}
+.header-main,.addon-section,.search-box{min-width:0}
+.search-box input{min-width:0}
+.scroll-body{min-height:0;min-width:0;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable}
+.bottom-nav{bottom:calc(12px + env(safe-area-inset-bottom,0px));max-width:min(680px,calc(100% - 32px));left:16px;right:16px}
+.slide-up{max-height:100dvh;min-height:0;display:flex;flex-direction:column;overscroll-behavior:contain}
+#popContent{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden}
+#sheetBackdrop{overscroll-behavior:none}
+#authGate{height:100vh;height:100dvh;overflow-y:auto;overscroll-behavior:contain;padding:calc(16px + env(safe-area-inset-top,0px)) 16px calc(16px + env(safe-area-inset-bottom,0px))}
+#authForm{min-width:0}
+#tab-add .grid>*{min-width:0}
+@media(max-height:550px){.header-main{padding-top:8px;padding-bottom:8px}.header-title{font-size:23px}.bottom-nav{bottom:calc(4px + env(safe-area-inset-bottom,0px))}.nav-item{padding:7px 0}.scroll-body{padding-top:10px}}
+@media(max-width:360px){.bottom-nav{left:8px;right:8px;max-width:calc(100% - 16px)}.header-main{padding-left:12px;padding-right:12px}.scroll-body{padding-left:12px;padding-right:12px}}
+@supports(height:100dvh){body{height:100dvh}}
 
-    <section id="tab-add" class="tab-content">
-        <header class="header-section">
-            <div class="header-main"><h1 id="add-page-title" class="header-title">곡 추가</h1></div>
-        </header>
-        <div class="scroll-body">
-            <div class="genre-control" aria-label="곡 분류">
-                <button onclick="setFormGenre('J-POP')" id="btnJ" class="flex-1 py-3 rounded-xl text-xs font-bold bg-white shadow-sm">J-POP</button>
-                <button onclick="setFormGenre('K-POP')" id="btnK" class="flex-1 py-3 rounded-xl text-xs font-bold text-gray-400">K-POP</button>
-                <button onclick="setFormGenre('ETC')" id="btnE" class="flex-1 py-3 rounded-xl text-xs font-bold text-gray-400">기타</button>
-            </div>
-            
-            <section class="song-lookup" aria-label="노래방 곡 검색">
-                <div class="song-lookup-row"><input id="songLookupQuery" class="ios-input" type="search" placeholder="곡명 또는 가수로 검색" aria-label="곡명 또는 가수"><button type="button" id="songLookupSearchBtn" onclick="searchKaraokeSongs()">검색</button></div>
-                <p id="songLookupStatus" class="song-lookup-status" role="status" aria-live="polite"></p>
-                <div id="songLookupResults" class="song-lookup-results" hidden></div>
-            </section>
-            <input type="hidden" id="editingId">
-            <label class="form-field" for="inTitle"><span>제목 <span class="field-required">필수</span></span><input type="text" id="inTitle" class="ios-input" placeholder="제목"></label>
-            <label class="form-field" for="inSubTitle"><span>발음 또는 부제</span><input type="text" id="inSubTitle" class="ios-input" placeholder="발음 또는 부제"></label>
-            <label class="form-field" for="inArtist"><span>가수 <span class="field-required">필수</span></span><input type="text" id="inArtist" class="ios-input" placeholder="가수명"></label>
-            <div class="grid grid-cols-2 gap-3 mb-4">
-                <label class="form-field" for="inTJ"><span>TJ 번호</span><input type="text" id="inTJ" class="ios-input" placeholder="TJ 번호" inputmode="numeric"></label>
-                <label class="form-field" for="inKY"><span>KY 번호</span><input type="text" id="inKY" class="ios-input" placeholder="KY 번호" inputmode="numeric"></label>
-            </div>
+/* Visual viewport compensation for on-screen keyboard. */
+body.keyboard-open .tab-content{height:var(--app-visible-height,100dvh);max-height:var(--app-visible-height,100dvh)}
+body.keyboard-open .bottom-nav{display:none}
+body.keyboard-open .slide-up{height:var(--app-visible-height,100dvh);max-height:var(--app-visible-height,100dvh)}
+body.keyboard-open #authGate{height:var(--app-visible-height,100dvh)}
 
-            <div class="lyrics-label lyrics-label-actions" style="display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;margin-bottom:10px"><div class="lyrics-title" style="display:flex;align-items:baseline;gap:5px;flex-shrink:0;white-space:nowrap"><strong style="font-size:13px;font-weight:600;color:#555e68">가사</strong><span style="font-size:11px;font-weight:400;color:#8e96a3">선택</span></div><div class="pro-toolbar" role="toolbar" aria-label="가사 자동 정리" style="display:flex;align-items:center;justify-content:flex-end;gap:7px;flex:0 1 auto;width:auto;min-width:0;margin:0">
-                <button type="button" id="japaneseLyricsFormatBtn" class="tool-btn" onclick="applyJapaneseLyricsFormat()" aria-label="가사 자동 정리 및 3줄 서식" title="가사 자동 정리 및 3줄 서식">AUTO FORMAT</button>
-            <p id="japaneseLyricsFormatMessage" class="japanese-lyrics-format-message" role="status" aria-live="polite" data-state="idle">미적용</p>
-                <button type="button" id="autoFormatUndoBtn" onclick="undoAutoFormat()" aria-label="자동 정리 되돌리기" hidden>되돌리기</button>
-            </div></div>
-            <div id="lyricsEditor" contenteditable="true" role="textbox" aria-label="가사" aria-multiline="true" data-placeholder="가사를 입력하거나 붙여넣으세요"></div>
-            <div class="lyrics-share-actions" style="display:flex;align-items:center;justify-content:flex-end;gap:8px;width:100%;margin-top:12px"><select style="height:38px;max-width:124px;padding:0 10px;border:1px solid #e5e8eb;border-radius:10px;background:#fff;color:#555e68;font-size:12px;appearance:auto" id="lyricsShareLanguage" aria-label="가사 언어" title="가사 언어"><option value="auto">자동 감지</option><option value="ko">한국어</option><option value="ja">일본어</option><option value="zh">중국어</option></select><button type="button" style="height:38px;padding:0 13px;border:1px solid #e5e8eb;border-radius:10px;background:#fff;color:#555e68;font-size:12px;font-weight:600;white-space:nowrap" id="chatgptLyricsBtn" onclick="openLyricsInChatGPT()" aria-label="ChatGPT에서 가사 정리 요청">ChatGPT로 공유</button></div>
-            <p id="songFormMessage" class="form-message" role="status"></p><button type="button" onclick="saveSong()" id="saveBtn" class="w-full py-5 bg-[#1C1E21] text-white rounded-3xl font-bold text-xl mt-6">저장하기</button>
-            <button id="cancelEditBtn" onclick="resetAllStates(); switchTab('home', document.querySelectorAll('.nav-item')[0]);" class="hidden w-full py-4 text-gray-400 mt-2 font-bold">취소</button>
-        </div>
-    </section>
+/* v11.3: current toolbar preserved on the v10.4 application baseline. */
+.bottom-nav{width:calc(100% - 32px);max-width:275px;left:50%;right:auto;margin:0;transform:translateX(-50%);box-sizing:border-box;border-radius:9999px;isolation:isolate;overflow:hidden;--nav-active-index:0;bottom:calc(12px + env(safe-area-inset-bottom,0px))}
+.bottom-nav::before{content:"";position:absolute;z-index:0;top:6px;bottom:6px;left:6px;width:calc((100% - 12px)/3);background:var(--ios-text);border-radius:9999px;transform:translateX(calc(var(--nav-active-index)*100%));transition:transform .28s cubic-bezier(.22,1,.36,1);pointer-events:none}
+.bottom-nav .nav-item{position:relative;z-index:1;min-width:0;border-radius:9999px;background:transparent!important;transition:color .22s ease}
+.bottom-nav .nav-item.active{background:transparent!important;color:#fff}
+@media(max-width:360px){.bottom-nav{left:50%;right:auto;width:calc(100% - 16px);max-width:275px}}
+@media(prefers-reduced-motion:reduce){.bottom-nav::before,.bottom-nav .nav-item{transition:none}}
 
-    <section id="tab-more" class="tab-content">
-        <header class="header-section">
-            <div class="header-main"><h1 class="header-title">설정</h1></div>
-        </header>
-        <div class="scroll-body settings-body">
-            <div class="settings-group" aria-label="백업 및 복원">
-                <button type="button" onclick="exportData()" class="settings-row"><i class="fas fa-arrow-down" aria-hidden="true"></i><span>데이터 백업</span><i class="fas fa-chevron-right row-chevron" aria-hidden="true"></i></button>
-                <label class="settings-row upload-row"><i class="fas fa-arrow-up" aria-hidden="true"></i><span>데이터 복구</span><input type="file" accept=".json,application/json" onchange="importData(this)"><i class="fas fa-chevron-right row-chevron" aria-hidden="true"></i></label>
-                <button type="button" onclick="restoreTrash()" class="settings-row"><i class="fas fa-trash-restore" aria-hidden="true"></i><span>휴지통 복원</span><i class="fas fa-chevron-right row-chevron" aria-hidden="true"></i></button>
-            </div>
-            <div class="settings-group sync-group"><div class="sync-summary"><i class="fas fa-cloud" aria-hidden="true"></i><p id="cloudStatus" role="status">이 기기에 저장됨</p></div><button type="button" onclick="initializeCloud()" class="settings-row"><i class="fas fa-rotate" aria-hidden="true"></i><span>동기화 다시 시도</span><i class="fas fa-chevron-right row-chevron" aria-hidden="true"></i></button></div>
-            <div class="settings-group"><button type="button" onclick="logoutApp()" class="settings-row"><i class="fas fa-arrow-right-from-bracket" aria-hidden="true"></i><span>로그아웃</span><i class="fas fa-chevron-right row-chevron" aria-hidden="true"></i></button><button type="button" onclick="clearData()" class="settings-row danger-row"><i class="fas fa-trash-alt" aria-hidden="true"></i><span>모든 곡 휴지통으로 이동</span><i class="fas fa-chevron-right row-chevron" aria-hidden="true"></i></button></div>
-            <div class="settings-group" aria-label="앱 새로고침"><button type="button" onclick="refreshAppAssets(this)" class="settings-row"><i class="fas fa-rotate" aria-hidden="true"></i><span>즉시 새로고침</span><i class="fas fa-chevron-right row-chevron" aria-hidden="true"></i></button></div>
-            <div class="settings-group" aria-label="앱 정보"><div class="settings-row" role="group" aria-label="앱 버전"><i class="fas fa-circle-info" aria-hidden="true"></i><span>앱 버전</span><span class="settings-version-value">v15.3</span></div></div>
-        </div>
-    </section>
+/* v11.4: title-only clearance for the iPhone Dynamic Island.
+   Keep header box and bottom toolbar layout unchanged. */
+@media(display-mode:standalone),(display-mode:fullscreen){
+  .header-section{padding-top:0!important}
+  .header-main{padding-top:35px!important}
+}
 
-    <nav id="bottom-nav" class="bottom-nav">
-        <div class="nav-item active" onclick="switchTab('home', this)"><i class="fas fa-house"></i></div>
-        <div class="nav-item" onclick="switchTab('add', this)"><i class="fas fa-plus"></i></div>
-        <div class="nav-item" onclick="switchTab('more', this)"><i class="fas fa-gear"></i></div>
-    </nav>
+/* v11.5: shorter song-detail bottom sheet, with visible space above. */
+#lyricPopup.slide-up{height:calc(100dvh - max(120px,env(safe-area-inset-top,0px) + 68px));max-height:calc(100dvh - max(120px,env(safe-area-inset-top,0px) + 68px))}
 
-    <div id="sheetBackdrop" onclick="closeLyrics()" hidden></div>
-<div id="deleteBar" hidden><span id="selectionCount"></span><button type="button" onclick="deleteSelected()">선택 삭제</button></div>
-<div id="lyricPopup" class="slide-up flex flex-col" role="dialog" aria-modal="true" aria-labelledby="popTitle" aria-hidden="true" inert>
-        <div id="sheetHandle" aria-label="아래로 끌어 닫기"><span></span></div>
-        <header class="px-8 py-2 flex justify-between items-center shrink-0">
-            <div class="flex-1 overflow-hidden">
-                <h3 id="popTitle" class="font-bold text-2xl truncate"></h3>
-                <p id="popArtist" class="text-sm text-gray-400 mt-1"></p>
-            </div>
-            <div class="flex items-center gap-5">
-                <button onclick="copyAndSelectAll()" title="전체 복사" class="text-gray-400 text-xl active:text-black"><i class="fas fa-copy"></i></button>
-                <button id="popEditBtn" class="text-gray-400 text-xl"><i class="fas fa-pen"></i></button>
-                <button id="popFavBtn" class="text-2xl"><i class="fas fa-heart"></i></button>
-            </div>
-        </header>
-        <div id="popContent" class="flex-1 overflow-y-auto px-8 py-6"></div>
-        <div class="px-8 py-6 bg-gray-50 flex gap-4 pb-24 shrink-0">
-            <div class="flex-1 text-center"><span class="num-label">TJ</span><span id="popTJ" class="num-val"></span></div>
-            <div class="flex-1 text-center border-l"><span class="num-label">KY</span><span id="popKY" class="num-val"></span></div>
-        </div>
-    </div>
+/* v11.7: replace the intro with an in-place loading skeleton. */
+body.auth-loading #authGate{display:none!important}
+body.auth-loading #appSkeleton{display:block!important}
+body.auth-loading > :not(#appSkeleton):not(script){display:none!important}
+#appSkeleton{display:none;position:fixed;inset:0;z-index:1100;background:#fff;padding:calc(28px + env(safe-area-inset-top,0px)) 22px 24px;overflow:hidden}
+.skeleton-shimmer{background:linear-gradient(100deg,#ededf0 20%,#f7f7f9 40%,#ededf0 60%);background-size:200% 100%;animation:skeletonPulse 1.4s ease-in-out infinite}
+.skeleton-title{width:46%;height:32px;border-radius:9px;margin-bottom:26px}
+.skeleton-search{height:48px;border-radius:15px;margin-bottom:18px}
+.skeleton-pills{display:flex;gap:9px;margin-bottom:25px}
+.skeleton-pills span{width:67px;height:34px;border-radius:999px}
+.skeleton-pills span:first-child{width:42px}
+.skeleton-list{display:flex;flex-direction:column;gap:12px}
+.skeleton-song{display:flex;align-items:center;gap:14px;padding:15px 12px;border-radius:18px;background:#fafafa}
+.skeleton-song>span{width:46px;height:46px;border-radius:12px;flex-shrink:0}
+.skeleton-song>div{display:flex;flex-direction:column;gap:9px;flex:1}
+.skeleton-song i{display:block;width:70%;height:14px;border-radius:6px}
+.skeleton-song i:last-child{width:42%;height:10px}
+@keyframes skeletonPulse{to{background-position-x:-200%}}
+@media(prefers-reduced-motion:reduce){.skeleton-shimmer{animation:none}}
 
-    <script src="/app.js?v=15.3"></script>
-</body>
-</html>
+/* v12.0: skeleton follows the real home header and card geometry. */
+#appSkeleton{padding:0!important;background:#fff}
+.skeleton-header{background:var(--ios-header-bg);border-bottom:.5px solid var(--cool-gray-dark);padding-top:env(safe-area-inset-top,0px)}
+.skeleton-header-main{display:flex;align-items:center;justify-content:space-between;padding:18px var(--side-padding) 14px}
+.skeleton-title{display:block;width:145px;height:31px;margin:0;border-radius:8px}
+.skeleton-edit{width:40px;height:20px;border-radius:6px}
+.skeleton-search{height:43px;margin:0 var(--side-padding) 12px;border-radius:12px}
+.skeleton-pills{padding:0 var(--side-padding) 15px;margin:0;gap:6px}
+.skeleton-pills span{height:33px;width:62px}
+.skeleton-pills span:first-child{width:38px}
+.skeleton-list{padding:16px var(--side-padding) 120px;gap:10px}
+.skeleton-song{min-height:88px;padding:16px;border-radius:18px;background:var(--cool-gray-bg);justify-content:space-between}
+.skeleton-song>div{gap:9px;flex:1}
+.skeleton-song>div i:first-child{width:58%;height:18px}
+.skeleton-song>div i:last-child{width:35%;height:12px}
+.skeleton-song>span{width:54px;height:36px;border-radius:8px;flex-shrink:0}
+@media(display-mode:standalone),(display-mode:fullscreen){.skeleton-header{padding-top:0}.skeleton-header-main{padding-top:35px}}
+html,body{touch-action:pan-x pan-y;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+input,textarea,select{font-size:16px!important}
+button,a,input,textarea,select{touch-action:manipulation}
+
+/* v12.5: uniform lyric-format controls, tab transitions, sheet dismissal. */
+.pro-toolbar{display:grid;grid-template-columns:repeat(4,40px);gap:10px;align-items:center}
+.pro-toolbar .tool-btn{width:40px;height:40px;display:flex;align-items:center;justify-content:center;padding:0;border-radius:12px}
+.pro-toolbar .tool-btn i{font-size:17px!important;line-height:1;width:20px;text-align:center;display:block}
+.pro-toolbar .lyric-color-icon{color:#ff8787;border-bottom:3px solid #ff8787;padding-bottom:2px}
+#lyricPopup.slide-up{transition:transform .34s cubic-bezier(.22,1,.36,1),visibility 0s linear .34s!important;will-change:transform}
+#lyricPopup.slide-up.active{transition:transform .34s cubic-bezier(.22,1,.36,1),visibility 0s!important}
+#sheetBackdrop{transition:opacity .3s ease;opacity:1}
+#sheetBackdrop.sheet-fading{opacity:0;pointer-events:none}
+@media(prefers-reduced-motion:reduce){#lyricPopup.slide-up,#lyricPopup.slide-up.active,#sheetBackdrop{transition:none!important}}
+
+/* v12.6: quiet, consistent monochrome lyric-format glyphs. */
+.pro-toolbar{gap:8px}
+.pro-toolbar .tool-btn{width:40px;height:40px;background:#f4f4f5;border:1px solid transparent;border-radius:11px;color:#44474d}
+.pro-toolbar .tool-btn[aria-pressed=true]{background:#e9e9ed;border-color:#d8d8df;color:#222}
+.lyric-glyph{display:inline-flex;position:relative;align-items:center;justify-content:center;width:20px;height:22px;font-family:Arial,sans-serif;font-size:18px;line-height:1;color:inherit}
+.lyric-glyph-bold{font-weight:800}
+.lyric-glyph-color,.lyric-glyph-highlight{font-weight:500}
+.lyric-glyph-color::after{content:"";position:absolute;bottom:0;left:2px;right:2px;height:2px;background:#e88791;border-radius:2px}
+.lyric-glyph-highlight::after{content:"";position:absolute;bottom:1px;left:1px;right:1px;height:7px;background:#e9d98580;z-index:-1}
+.lyric-glyph-highlight{isolation:isolate}
+.lyric-glyph-erase{width:20px;height:20px}
+
+/* v12.7 Japanese lyric triplet formatting */
+.japanese-lyrics-format{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:38px;padding:0 13px;margin:0 0 12px;border:1px solid #e5e7eb;border-radius:11px;background:#f7f7f8;color:#383b42;font-size:13px;font-weight:600;cursor:pointer}
+.japanese-lyrics-format i{font-size:13px;color:#e54848}
+.japanese-lyrics-format:active{background:#ededf0}
+
+/* v12.8: inline formatting feedback */
+.japanese-lyrics-format{margin-bottom:6px}
+.japanese-lyrics-format-message{margin:0 0 12px;padding:0 2px;font-size:12px;line-height:1.5;color:#6b7280}
+.japanese-lyrics-format-message[data-state="error"]{color:#c24141}
+.japanese-lyrics-format-message[data-state="success"]{color:#47735b}
+.japanese-lyrics-format-message[hidden]{display:none}
+
+/* v12.9: compact favorites filter pill */
+#pill-FAV{flex:0 0 40px;width:40px;min-width:40px}
+
+/* v13.1: magic-wand auto-format control integrated with lyric toolbar */
+.pro-toolbar{display:flex;gap:8px;align-items:center}
+.pro-toolbar #japaneseLyricsFormatBtn{flex:0 0 40px;width:40px;min-width:40px;height:40px;margin:0;padding:0;border:1px solid transparent;border-radius:11px;background:#f4f4f5;color:#44474d}
+.pro-toolbar #japaneseLyricsFormatBtn svg{display:block;width:20px;height:20px}
+.pro-toolbar #japaneseLyricsFormatBtn:active{background:#e9e9ed}
+
+/* v13.3: reference-style minimal glyph toolbar */
+.pro-toolbar{display:flex;gap:10px;align-items:center;grid-template-columns:none}
+.pro-toolbar .tool-btn,.pro-toolbar #japaneseLyricsFormatBtn{width:40px;min-width:40px;flex:0 0 40px;height:40px;border:0;border-radius:8px;background:transparent;color:#191919;box-shadow:none;margin:0;padding:0}
+.pro-toolbar .tool-btn[aria-pressed="true"]{background:#f2f2f2;border:0;box-shadow:none;color:#191919}
+.pro-toolbar .tool-btn:active,.pro-toolbar #japaneseLyricsFormatBtn:active{background:#f4f4f5}
+.pro-toolbar .tool-btn svg,.pro-toolbar #japaneseLyricsFormatBtn svg{width:19px;height:19px;display:block}
+.pro-toolbar .lyric-glyph{font-size:18px;font-weight:500;width:20px;height:22px}
+.pro-toolbar .lyric-glyph-bold{font-weight:600}
+.pro-toolbar .lyric-glyph-color{color:#ed4056;font-weight:600}
+.pro-toolbar .lyric-glyph-color::after{display:none}
+
+/* v13.6: constrain the skeleton to the same centered mobile-width app frame on desktop */
+#appSkeleton{left:50%;right:auto;width:100%;max-width:720px;transform:translateX(-50%);box-sizing:border-box}
+
+/* v14.3: prevent phantom blank space below focused inputs when the mobile keyboard opens. */
+body.keyboard-open #tab-add .scroll-body{padding-bottom:20px;scroll-padding-bottom:20px}
+body.keyboard-open #tab-add{min-height:0;overflow:hidden}
+body.keyboard-open #tab-add #lyricsEditor{scroll-margin-bottom:16px}
+
+/* v14.4: text-only AUTO FORMAT and inline state, no wand icon. */
+.pro-toolbar{display:flex;align-items:center;gap:10px;flex-wrap:nowrap;min-width:0}
+.pro-toolbar #japaneseLyricsFormatBtn{width:auto;min-width:0;flex:0 0 auto;height:36px;padding:0 13px;border-radius:9px;background:#191919;color:#fff;font-size:11px;font-weight:700;letter-spacing:.03em;white-space:nowrap}
+.pro-toolbar #japaneseLyricsFormatBtn:active{background:#363636;color:#fff}
+.pro-toolbar #japaneseLyricsFormatMessage{display:block;min-width:0;flex:1;margin:0;line-height:1.4;font-size:12px;overflow-wrap:anywhere}
+.pro-toolbar #japaneseLyricsFormatMessage[data-state="idle"]{color:#8c9199}
+
+/* v14.7: one-click undo for the last successful auto-format. */
+.pro-toolbar #autoFormatUndoBtn{flex:0 0 auto;border:0;background:transparent;color:#656b76;font-size:12px;font-weight:600;padding:8px 2px;white-space:nowrap}
+.pro-toolbar #autoFormatUndoBtn[hidden]{display:none}
+.pro-toolbar #autoFormatUndoBtn:active{color:#191919}
+
+/* v14.8: preserve existing minimalist look; keep format, state and undo on one tidy row. */
+#tab-add .pro-toolbar{display:flex;align-items:center;flex-wrap:nowrap;gap:8px;width:100%;min-width:0;margin-bottom:10px}
+#tab-add .pro-toolbar #japaneseLyricsFormatBtn{flex:0 0 auto;width:auto;min-width:0;height:36px;padding:0 12px;border-radius:9px;font-size:11px;letter-spacing:.02em}
+#tab-add .pro-toolbar #japaneseLyricsFormatMessage{display:block;flex:1 1 auto;min-width:0;max-width:100%;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;overflow-wrap:normal;font-size:12px;line-height:36px}
+#tab-add .pro-toolbar #autoFormatUndoBtn{flex:0 0 auto;height:36px;padding:0 4px;margin-left:auto;border:0;border-radius:8px;background:transparent;font-size:12px;font-weight:500;color:#717780;white-space:nowrap}
+#tab-add .pro-toolbar #autoFormatUndoBtn[hidden]{display:none}
+
+/* v14.9: compact song lookup, matching existing input styling */
+.song-lookup{margin:0 0 18px;min-width:0}
+.song-lookup-row{display:flex;gap:8px;align-items:center}
+.song-lookup-row .ios-input{min-width:0;flex:1}
+.song-lookup-row button{height:44px;padding:0 17px;border:0;border-radius:12px;background:#1c1e21;color:#fff;font-size:13px;font-weight:700;flex-shrink:0}
+.song-lookup-row button:disabled{opacity:.5}
+.song-lookup-status{margin:6px 2px 0;color:#888e96;font-size:12px;line-height:1.5}
+.song-lookup-status:empty{display:none}
+.song-lookup-results{margin-top:8px;border:1px solid #ebedf0;border-radius:12px;overflow:hidden;max-height:245px;overflow-y:auto;overscroll-behavior:contain}
+.song-lookup-results[hidden]{display:none}
+.song-lookup-item{width:100%;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px;text-align:left;background:#fff;border:0;border-bottom:1px solid #f0f1f3}
+.song-lookup-item:last-child{border-bottom:0}
+.song-lookup-details{min-width:0;display:flex;flex-direction:column;gap:3px}
+.song-lookup-details strong{font-size:13px;color:#1c1e21;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.song-lookup-details small{font-size:11px;color:#9298a0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.song-lookup-number{flex-shrink:0;color:#555c66;font-size:11px;font-weight:600}
+
+/* v15.0: unobtrusive ChatGPT handoff beside lyrics label. */
+.lyrics-label-actions{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.lyrics-label-actions #chatgptLyricsBtn{flex:0 0 auto;border:0;background:transparent;color:#747a83;font-size:12px;font-weight:600;padding:6px 0;white-space:nowrap}
+.lyrics-label-actions #chatgptLyricsBtn:active{color:#1c1e21}
+
+/* v15.1: discreet language picker beside ChatGPT share action. */
+.lyrics-label-actions #lyricsShareLanguage{margin-left:auto;min-width:0;max-width:76px;background:transparent;border:0;color:#747a83;font-size:12px;font-weight:500;outline-offset:2px}
+.lyrics-label-actions #chatgptLyricsBtn{margin-left:4px}
+
+/* v15.2: group format with label; place share actions beneath the editor. */
+#tab-add .lyrics-label-actions{display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0;margin-bottom:10px}
+#tab-add .lyrics-label-actions>span{flex:0 0 auto;white-space:nowrap}
+#tab-add .lyrics-label-actions .pro-toolbar{width:auto;flex:0 1 auto;min-width:0;margin:0;justify-content:flex-end;gap:7px}
+#tab-add .lyrics-label-actions .pro-toolbar #japaneseLyricsFormatMessage{flex:0 1 auto;line-height:1.4;max-width:80px;text-align:right}
+#tab-add .lyrics-label-actions .pro-toolbar #autoFormatUndoBtn{margin-left:0}
+#tab-add .lyrics-share-actions{display:flex;align-items:center;justify-content:flex-end;gap:10px;margin-top:10px;min-width:0}
+#tab-add .lyrics-share-actions #lyricsShareLanguage{min-width:0;max-width:120px;height:36px;padding:0 8px;border:1px solid #e5e8eb;border-radius:9px;background:#fff;color:#656b76;font-size:12px;outline-offset:2px}
+#tab-add .lyrics-share-actions #chatgptLyricsBtn{flex:0 0 auto;min-height:36px;padding:0 12px;border:1px solid #e5e8eb;border-radius:9px;background:#fff;color:#555c66;font-size:12px;font-weight:600;white-space:nowrap}
+#tab-add .lyrics-share-actions #chatgptLyricsBtn:active{background:#f2f4f7}
+@media(max-width:360px){#tab-add .lyrics-label-actions .pro-toolbar{gap:4px}#tab-add .lyrics-label-actions .pro-toolbar #japaneseLyricsFormatBtn{padding:0 8px;font-size:10px}#tab-add .lyrics-label-actions .pro-toolbar #japaneseLyricsFormatMessage{font-size:11px}#tab-add .lyrics-label-actions .pro-toolbar #autoFormatUndoBtn{font-size:11px;padding:0 2px}}
+
+/* v15.3: resilient lyrics row layout, correct label typography, and styled sharing controls. */
+#tab-add .lyrics-label-actions{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:10px!important;width:100%!important;margin:0 0 10px!important;line-height:normal!important}
+#tab-add .lyrics-label-actions .lyrics-title{display:flex!important;align-items:baseline!important;gap:5px!important;flex:0 0 auto!important;white-space:nowrap!important;min-width:max-content!important}
+#tab-add .lyrics-label-actions .lyrics-title strong{font-size:13px!important;line-height:20px!important;font-weight:600!important;color:#555e68!important}
+#tab-add .lyrics-label-actions .lyrics-title span{font-size:11px!important;line-height:20px!important;color:#8e96a3!important;font-weight:400!important}
+#tab-add .lyrics-label-actions .pro-toolbar{display:flex!important;align-items:center!important;justify-content:flex-end!important;flex:0 1 auto!important;min-width:0!important;width:auto!important;margin:0!important;gap:7px!important}
+#tab-add .lyrics-label-actions .pro-toolbar #japaneseLyricsFormatBtn{flex:0 0 auto!important;height:36px!important;border-radius:10px!important}
+#tab-add .lyrics-label-actions .pro-toolbar #japaneseLyricsFormatMessage{flex:0 0 auto!important;max-width:none!important;line-height:20px!important;white-space:nowrap!important;text-align:right!important}
+#tab-add .lyrics-share-actions{display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:8px!important;width:100%!important;margin:12px 0 0!important}
+#tab-add .lyrics-share-actions #lyricsShareLanguage{display:block!important;flex:0 1 auto!important;width:auto!important;max-width:124px!important;height:38px!important;padding:0 10px!important;border:1px solid #e5e8eb!important;border-radius:10px!important;background:#fff!important;color:#555e68!important;font-size:12px!important;appearance:auto!important}
+#tab-add .lyrics-share-actions #chatgptLyricsBtn{display:inline-flex!important;align-items:center!important;justify-content:center!important;flex:0 0 auto!important;height:38px!important;padding:0 13px!important;border:1px solid #e5e8eb!important;border-radius:10px!important;background:#fff!important;color:#555e68!important;font-size:12px!important;font-weight:600!important;white-space:nowrap!important}
+
+/* v15.4: lyrics header only; ChatGPT handoff removed. */
+#tab-add .lyrics-label-actions{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:10px!important;width:100%!important;margin-bottom:10px!important}
+#tab-add .lyrics-label-actions .lyrics-title{display:flex!important;align-items:baseline!important;gap:5px!important;flex:0 0 auto!important;white-space:nowrap!important}
+#tab-add .lyrics-label-actions .lyrics-title strong{font-size:13px!important;font-weight:600!important;color:#555e68!important}
+#tab-add .lyrics-label-actions .lyrics-title span{font-size:11px!important;font-weight:400!important;color:#8e96a3!important}
+#tab-add .lyrics-label-actions .pro-toolbar{display:flex!important;align-items:center!important;justify-content:flex-end!important;flex:0 1 auto!important;width:auto!important;min-width:0!important;margin:0!important;gap:7px!important}
+#tab-add .lyrics-label-actions .pro-toolbar #japaneseLyricsFormatMessage{flex:0 0 auto!important;max-width:none!important;white-space:nowrap!important}
