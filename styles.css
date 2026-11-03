@@ -323,3 +323,20 @@ body.keyboard-open #tab-add #lyricsEditor{scroll-margin-bottom:16px}
 #tab-add .pro-toolbar #japaneseLyricsFormatMessage{display:block;flex:1 1 auto;min-width:0;max-width:100%;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;overflow-wrap:normal;font-size:12px;line-height:36px}
 #tab-add .pro-toolbar #autoFormatUndoBtn{flex:0 0 auto;height:36px;padding:0 4px;margin-left:auto;border:0;border-radius:8px;background:transparent;font-size:12px;font-weight:500;color:#717780;white-space:nowrap}
 #tab-add .pro-toolbar #autoFormatUndoBtn[hidden]{display:none}
+
+/* v14.9: compact song lookup, matching existing input styling */
+.song-lookup{margin:0 0 18px;min-width:0}
+.song-lookup-row{display:flex;gap:8px;align-items:center}
+.song-lookup-row .ios-input{min-width:0;flex:1}
+.song-lookup-row button{height:44px;padding:0 17px;border:0;border-radius:12px;background:#1c1e21;color:#fff;font-size:13px;font-weight:700;flex-shrink:0}
+.song-lookup-row button:disabled{opacity:.5}
+.song-lookup-status{margin:6px 2px 0;color:#888e96;font-size:12px;line-height:1.5}
+.song-lookup-status:empty{display:none}
+.song-lookup-results{margin-top:8px;border:1px solid #ebedf0;border-radius:12px;overflow:hidden;max-height:245px;overflow-y:auto;overscroll-behavior:contain}
+.song-lookup-results[hidden]{display:none}
+.song-lookup-item{width:100%;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px;text-align:left;background:#fff;border:0;border-bottom:1px solid #f0f1f3}
+.song-lookup-item:last-child{border-bottom:0}
+.song-lookup-details{min-width:0;display:flex;flex-direction:column;gap:3px}
+.song-lookup-details strong{font-size:13px;color:#1c1e21;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.song-lookup-details small{font-size:11px;color:#9298a0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.song-lookup-number{flex-shrink:0;color:#555c66;font-size:11px;font-weight:600}
