@@ -345,3 +345,7 @@ body.keyboard-open #tab-add #lyricsEditor{scroll-margin-bottom:16px}
 .lyrics-label-actions{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .lyrics-label-actions #chatgptLyricsBtn{flex:0 0 auto;border:0;background:transparent;color:#747a83;font-size:12px;font-weight:600;padding:6px 0;white-space:nowrap}
 .lyrics-label-actions #chatgptLyricsBtn:active{color:#1c1e21}
+
+/* v15.1: discreet language picker beside ChatGPT share action. */
+.lyrics-label-actions #lyricsShareLanguage{margin-left:auto;min-width:0;max-width:76px;background:transparent;border:0;color:#747a83;font-size:12px;font-weight:500;outline-offset:2px}
+.lyrics-label-actions #chatgptLyricsBtn{margin-left:4px}
