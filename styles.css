@@ -220,3 +220,24 @@ body.auth-loading > :not(#appSkeleton):not(script){display:none!important}
 .skeleton-song i:last-child{width:42%;height:10px}
 @keyframes skeletonPulse{to{background-position-x:-200%}}
 @media(prefers-reduced-motion:reduce){.skeleton-shimmer{animation:none}}
+
+/* v12.0: skeleton follows the real home header and card geometry. */
+#appSkeleton{padding:0!important;background:#fff}
+.skeleton-header{background:var(--ios-header-bg);border-bottom:.5px solid var(--cool-gray-dark);padding-top:env(safe-area-inset-top,0px)}
+.skeleton-header-main{display:flex;align-items:center;justify-content:space-between;padding:18px var(--side-padding) 14px}
+.skeleton-title{display:block;width:145px;height:31px;margin:0;border-radius:8px}
+.skeleton-edit{width:40px;height:20px;border-radius:6px}
+.skeleton-search{height:43px;margin:0 var(--side-padding) 12px;border-radius:12px}
+.skeleton-pills{padding:0 var(--side-padding) 15px;margin:0;gap:6px}
+.skeleton-pills span{height:33px;width:62px}
+.skeleton-pills span:first-child{width:38px}
+.skeleton-list{padding:16px var(--side-padding) 120px;gap:10px}
+.skeleton-song{min-height:88px;padding:16px;border-radius:18px;background:var(--cool-gray-bg);justify-content:space-between}
+.skeleton-song>div{gap:9px;flex:1}
+.skeleton-song>div i:first-child{width:58%;height:18px}
+.skeleton-song>div i:last-child{width:35%;height:12px}
+.skeleton-song>span{width:54px;height:36px;border-radius:8px;flex-shrink:0}
+@media(display-mode:standalone),(display-mode:fullscreen){.skeleton-header{padding-top:0}.skeleton-header-main{padding-top:15px}}
+html,body{touch-action:pan-x pan-y;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+input,textarea,select{font-size:16px!important}
+button,a,input,textarea,select{touch-action:manipulation}
