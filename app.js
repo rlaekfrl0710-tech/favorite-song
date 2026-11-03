@@ -138,6 +138,48 @@
             window.scrollTo(0,0);
         }
 
+
+        let songLookupItems=[];
+        async function searchKaraokeSongs(){
+            const input=document.getElementById('songLookupQuery');
+            const results=document.getElementById('songLookupResults');
+            const status=document.getElementById('songLookupStatus');
+            const button=document.getElementById('songLookupSearchBtn');
+            const q=input.value.trim();
+            if(q.length<2){status.textContent='검색어를 2글자 이상 입력해 주세요.';return;}
+            const token=(window.songLookupToken||0)+1;window.songLookupToken=token;
+            button.disabled=true;status.textContent='TJ · KY 검색 중…';results.hidden=true;results.replaceChildren();songLookupItems=[];
+            try{
+                const response=await fetch('/api/song-search?q='+encodeURIComponent(q),{credentials:'same-origin'});
+                const payload=await response.json();
+                if(token!==window.songLookupToken)return;
+                if(!response.ok)throw Error(payload.error||'검색 서버에 연결하지 못했어요.');
+                songLookupItems=Array.isArray(payload.items)?payload.items:[];
+                status.textContent=songLookupItems.length?('검색 결과 '+songLookupItems.length+'개 · 원하는 곡을 선택하세요.'):'검색 결과가 없어요. 다른 제목이나 가수로 검색해 보세요.';
+                songLookupItems.forEach((song,index)=>{
+                    const item=document.createElement('button');item.type='button';item.className='song-lookup-item';
+                    const details=document.createElement('span');details.className='song-lookup-details';
+                    const title=document.createElement('strong');title.textContent=song.title;
+                    const artist=document.createElement('small');artist.textContent=song.artist;
+                    const number=document.createElement('span');number.className='song-lookup-number';number.textContent=[song.tj&&'TJ '+song.tj,song.ky&&'KY '+song.ky].filter(Boolean).join(' · ');
+                    details.append(title,artist);item.append(details,number);
+                    item.addEventListener('click',()=>selectKaraokeSong(index));
+                    results.append(item);
+                });
+                results.hidden=!songLookupItems.length;
+            }catch(error){if(token===window.songLookupToken)status.textContent='검색 오류: '+error.message;}
+            finally{if(token===window.songLookupToken)button.disabled=false;}
+        }
+        function selectKaraokeSong(index){
+            const song=songLookupItems[index];if(!song)return;
+            const title=document.getElementById('inTitle'),artist=document.getElementById('inArtist');
+            title.value=song.title;artist.value=song.artist;
+            if(song.tj)document.getElementById('inTJ').value=song.tj;
+            if(song.ky)document.getElementById('inKY').value=song.ky;
+            document.getElementById('songLookupResults').hidden=true;
+            document.getElementById('songLookupStatus').textContent='선택 완료 · 번호를 확인한 후 저장해 주세요.';
+        }
+        document.addEventListener('keydown',event=>{if(event.key==='Enter'&&event.target?.id==='songLookupQuery'){event.preventDefault();searchKaraokeSongs();}});
         function resetAllStates() {
             document.getElementById('searchInput').value = '';
             currentFilter = 'ALL';
