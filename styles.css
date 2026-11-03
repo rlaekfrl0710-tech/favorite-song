@@ -195,7 +195,7 @@ body.keyboard-open #authGate{height:var(--app-visible-height,100dvh)}
    Keep header box and bottom toolbar layout unchanged. */
 @media(display-mode:standalone),(display-mode:fullscreen){
   .header-section{padding-top:0!important}
-  .header-main{padding-top:calc((18px + max(54px,env(safe-area-inset-top,0px))) * .68)!important}
+  .header-main{padding-top:15px!important}
 }
 
 /* v11.5: shorter song-detail bottom sheet, with visible space above. */
