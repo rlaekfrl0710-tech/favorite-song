@@ -272,3 +272,14 @@ document.addEventListener('gesturechange',e=>e.preventDefault(),{passive:false})
 let zoomTouchEnd=0;
 document.addEventListener('touchend',e=>{if(e.changedTouches.length!==1)return;const now=Date.now();if(now-zoomTouchEnd<300&&e.target.closest('button,a,input,textarea,select')===null)e.preventDefault();zoomTouchEnd=now;},{passive:false});
 document.addEventListener('touchmove',e=>{if(e.touches.length>1)e.preventDefault();},{passive:false});
+
+        async function refreshAppAssets(button){
+            if(button){button.disabled=true;button.querySelector('span').textContent='최신 화면 불러오는 중…';}
+            try{
+                if('caches' in window){const keys=await caches.keys();await Promise.all(keys.map(key=>caches.delete(key)));}
+                if('serviceWorker' in navigator){const registrations=await navigator.serviceWorker.getRegistrations();await Promise.all(registrations.filter(r=>new URL(r.scope).origin===location.origin).map(r=>r.unregister()));}
+            }catch(error){console.warn('일부 캐시 정리에 실패했어요',error);}
+            const url=new URL(location.href);
+            url.searchParams.set('refresh',Date.now().toString());
+            location.replace(url.toString());
+        }
