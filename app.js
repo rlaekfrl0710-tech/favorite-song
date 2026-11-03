@@ -24,8 +24,8 @@
 
         function normalizeJapaneseLyricLines(text){
             return String(text||'').replace(/\r/g,'\n').replace(/\u00a0/g,' ').split('\n')
-                .map(line=>line.replace(/[\u200b-\u200d\ufeff]/g,'').trim())
-                .filter(line=>line&&!/^(?:\/\/|#|<!--|-->|\/\*|\*\/|\* |※|주석\s*[:：]|메모\s*[:：]|참고\s*[:：]|출처\s*[:：]|작사\s*[:：]|작곡\s*[:：]|편곡\s*[:：]|번역\s*[:：]|가사\s*[:：]|\[[^\]]*(?:verse|chorus|bridge|intro|outro|간주|후렴|1절|2절)[^\]]*\])/.test(line))
+                .map(line=>line.replace(/[\u200b-\u200d\ufeff]/g,'').replace(/\[[^\]\r\n]*\]/g,'').trim())
+                .filter(line=>line&&!/^(?:[-–—_=~*·•.\s]{2,}|\/\/|#|<!--|-->|\/\*|\*\/|\* |※|주석\s*[:：]|메모\s*[:：]|참고\s*[:：]|출처\s*[:：]|작사\s*[:：]|작곡\s*[:：]|편곡\s*[:：]|번역\s*[:：]|가사\s*[:：]|\[[^\]]*(?:verse|chorus|bridge|intro|outro|간주|후렴|1절|2절)[^\]]*\])/.test(line))
                 .map(line=>line.replace(/\s*(?:\/\/|#)\s*(?:주석|메모|참고)\s*[:：].*$/,'').trim()).filter(Boolean);
         }
         function formatPlainLyrics(text){
