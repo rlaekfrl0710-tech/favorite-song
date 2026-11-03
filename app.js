@@ -271,7 +271,7 @@
       const viewport=window.visualViewport;
       const visibleHeight=viewport?viewport.height:window.innerHeight;
       root.style.setProperty('--app-visible-height',Math.max(1,visibleHeight)+'px');
-      const keyboardOpen=viewport&&window.innerHeight-visibleHeight>140;
+      const keyboardOpen=!!(viewport&&document.activeElement&&document.activeElement.matches('input,textarea,[contenteditable="true"]')&&window.innerHeight-visibleHeight>140);
       document.body.classList.toggle('keyboard-open',!!keyboardOpen);
     });
   }
