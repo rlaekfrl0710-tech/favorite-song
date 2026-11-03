@@ -33,6 +33,7 @@
             if(tabId !== 'home' && isEditMode) toggleEditMode();
             document.getElementById('tab-' + tabId).classList.add('active');
             el.classList.add('active');
+            document.getElementById('bottom-nav').style.setProperty('--nav-active-index',Array.prototype.indexOf.call(el.parentElement.children,el));
             if(tabId === 'home') renderList();
             window.scrollTo(0,0);
         }
