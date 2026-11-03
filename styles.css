@@ -210,3 +210,6 @@ body.keyboard-open .slide-up{height:var(--app-visible-height,100%);max-height:va
 
 /* Round the bottom toolbar by more than 5% (22px -> 28px). */
 .bottom-nav{border-radius:28px}
+
+/* v10.5: fully pill-shaped toolbar (50% corner rounding). */
+.bottom-nav{border-radius:9999px}
