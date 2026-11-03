@@ -63,21 +63,26 @@
         function cleanLyricsHtml(html){const source=new DOMParser().parseFromString(html,'text/html'),output=document.createElement('div');const properties=['color','backgroundColor','fontWeight','fontStyle','textDecoration','textAlign','whiteSpace','letterSpacing','marginBottom','lineHeight'];Array.from(source.querySelectorAll('style')).forEach(style=>{const rules=style.textContent.matchAll(/([^{}]+)\{([^{}]*)\}/g);for(const rule of rules){try{const declaration=document.createElement('span');declaration.style.cssText=rule[2];source.querySelectorAll(rule[1]).forEach(node=>properties.forEach(key=>{if(!node.style[key]&&declaration.style[key])node.style[key]=declaration.style[key];}));}catch(e){}}});const allowed=new Set(['DIV','P','BR','SPAN','B','STRONG','I','EM','U','S','FONT','UL','OL','LI','BLOCKQUOTE','H1','H2','H3','H4','H5','H6','PRE']);const blocked=new Set(['SCRIPT','STYLE','IFRAME','OBJECT','EMBED','SVG','MATH','IMG','VIDEO','AUDIO','LINK','META']);function copy(node,parent){if(node.nodeType===3){parent.appendChild(document.createTextNode(node.textContent));return;}if(node.nodeType!==1||blocked.has(node.tagName))return;let target=parent;if(allowed.has(node.tagName)){target=document.createElement(node.tagName==='FONT'?'span':node.tagName.toLowerCase());properties.forEach(key=>{if(node.style[key])target.style[key]=node.style[key];});if(node.tagName==='FONT'&&node.getAttribute('color'))target.style.color=node.getAttribute('color');parent.appendChild(target);}Array.from(node.childNodes).forEach(child=>copy(child,target));}Array.from(source.body.childNodes).forEach(node=>copy(node,output));return output.innerHTML;}
 
         function switchTab(tabId, el) {
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-            closeLyrics();
-            if(tabId !== 'home' && isEditMode) toggleEditMode();
-            const nextTab=document.getElementById('tab-' + tabId);
             const previousTab=document.querySelector('.tab-content.active');
+            const nextTab=document.getElementById('tab-' + tabId);
+            const order=['home','add','more'];
+            const from=order.indexOf(previousTab?.id.replace('tab-',''));
+            const to=order.indexOf(tabId);
+            const forward=from>=0&&to>=0&&((to-from+order.length)%order.length===1);
+            const backward=from>=0&&to>=0&&((from-to+order.length)%order.length===1);
+            document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));
+            closeLyrics();
+            if(tabId!=='home'&&isEditMode)toggleEditMode();
             nextTab.classList.add('active');
-            if(previousTab!==nextTab && !window.matchMedia('(prefers-reduced-motion: reduce)').matches){
-                const order=['home','add','more'];
-                const forward=order.indexOf(tabId)>order.indexOf(previousTab?.id.replace('tab-',''));
-                nextTab.animate([{opacity:.55,transform:'translateX('+(forward?'24px':'-24px')+')'},{opacity:1,transform:'translateX(0)'}],{duration:280,easing:'cubic-bezier(.22,1,.36,1)'});
+            if(previousTab&&previousTab!==nextTab&&!window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+                nextTab.getAnimations().forEach(animation=>animation.cancel());
+                const offset=forward?24:backward?-24:0;
+                nextTab.animate([{opacity:.55,transform:'translateX('+offset+'px)'},{opacity:1,transform:'translateX(0)'}],{duration:280,easing:'cubic-bezier(.22,1,.36,1)'});
             }
             el.classList.add('active');
             document.getElementById('bottom-nav').style.setProperty('--nav-active-index',Array.prototype.indexOf.call(el.parentElement.children,el));
-            if(tabId === 'home') renderList();
+            if(tabId==='home')renderList();
             window.scrollTo(0,0);
         }
 
