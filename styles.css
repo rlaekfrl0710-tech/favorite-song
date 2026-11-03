@@ -213,3 +213,17 @@ body.keyboard-open .slide-up{height:var(--app-visible-height,100%);max-height:va
 
 /* v10.5: fully pill-shaped toolbar (50% corner rounding). */
 .bottom-nav{border-radius:9999px}
+
+/* v10.6: iPhone 17 Pro Dynamic Island / status bar clearance. */
+:root{--iphone-top-clearance:env(safe-area-inset-top,0px);--iphone-bottom-clearance:env(safe-area-inset-bottom,0px)}
+@media (display-mode:standalone){
+  .header-section{padding-top:max(62px,var(--iphone-top-clearance));box-sizing:border-box}
+  #authGate{padding-top:calc(16px + max(62px,var(--iphone-top-clearance)));box-sizing:border-box}
+}
+@media (display-mode:fullscreen){
+  .header-section{padding-top:max(62px,var(--iphone-top-clearance));box-sizing:border-box}
+  #authGate{padding-top:calc(16px + max(62px,var(--iphone-top-clearance)));box-sizing:border-box}
+}
+@media (display-mode:browser){
+  .header-section{padding-top:var(--iphone-top-clearance)}
+}
