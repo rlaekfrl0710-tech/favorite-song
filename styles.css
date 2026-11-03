@@ -316,3 +316,10 @@ body.keyboard-open #tab-add #lyricsEditor{scroll-margin-bottom:16px}
 .pro-toolbar #autoFormatUndoBtn{flex:0 0 auto;border:0;background:transparent;color:#656b76;font-size:12px;font-weight:600;padding:8px 2px;white-space:nowrap}
 .pro-toolbar #autoFormatUndoBtn[hidden]{display:none}
 .pro-toolbar #autoFormatUndoBtn:active{color:#191919}
+
+/* v14.8: preserve existing minimalist look; keep format, state and undo on one tidy row. */
+#tab-add .pro-toolbar{display:flex;align-items:center;flex-wrap:nowrap;gap:8px;width:100%;min-width:0;margin-bottom:10px}
+#tab-add .pro-toolbar #japaneseLyricsFormatBtn{flex:0 0 auto;width:auto;min-width:0;height:36px;padding:0 12px;border-radius:9px;font-size:11px;letter-spacing:.02em}
+#tab-add .pro-toolbar #japaneseLyricsFormatMessage{display:block;flex:1 1 auto;min-width:0;max-width:100%;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;overflow-wrap:normal;font-size:12px;line-height:36px}
+#tab-add .pro-toolbar #autoFormatUndoBtn{flex:0 0 auto;height:36px;padding:0 4px;margin-left:auto;border:0;border-radius:8px;background:transparent;font-size:12px;font-weight:500;color:#717780;white-space:nowrap}
+#tab-add .pro-toolbar #autoFormatUndoBtn[hidden]{display:none}
