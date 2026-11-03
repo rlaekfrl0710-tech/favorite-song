@@ -296,3 +296,6 @@ button,a,input,textarea,select{touch-action:manipulation}
 .pro-toolbar .lyric-glyph-bold{font-weight:600}
 .pro-toolbar .lyric-glyph-color{color:#ed4056;font-weight:600}
 .pro-toolbar .lyric-glyph-color::after{display:none}
+
+/* v13.6: constrain the skeleton to the same centered mobile-width app frame on desktop */
+#appSkeleton{left:50%;right:auto;width:100%;max-width:720px;transform:translateX(-50%);box-sizing:border-box}
