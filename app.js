@@ -177,28 +177,42 @@
             const existing=(editor.innerText||editor.textContent||'').trim();
             const status=document.getElementById('songFormMessage');
             if(!title||!artist){
-                status.textContent='ChatGPT로 이동하려면 제목과 가수를 먼저 입력해 주세요.';
+                status.textContent='제목과 가수명을 먼저 입력해 주세요.';
                 document.getElementById(!title?'inTitle':'inArtist').focus();
                 return;
             }
-            status.textContent='';
+            const selected=document.getElementById('lyricsShareLanguage').value;
+            const language=selected!=='auto'?selected:(formGenre==='K-POP'?'ko':formGenre==='J-POP'?'ja':(/[\u4e00-\u9fff]/.test(title+' '+artist+' '+existing)?'zh':'ko'));
+            const formats={
+                ko:'한국어 가사 원문만 제공해 줘. 일본어 발음이나 번역은 필요 없어.',
+                ja:'일본어 원문 → 한글 발음 → 자연스러운 한국어 뜻 순서로 정리해 줘. 뜻이 없는 경우 2줄, 영어만 있는 구절은 1줄로 둬.',
+                zh:'중국어 원문 → 한글 발음 → 자연스러운 한국어 뜻 순서로 정리해 줘. 뜻이 없는 경우 2줄, 영어만 있는 구절은 1줄로 둬.'
+            };
             const prompt=[
-                '노래방에서 보기 편하도록 일본어 가사를 정리하고 싶어.',
-                '곡명: '+title,
-                '가수: '+artist,
-                '',
-                '일본어 원문 → 한글 발음 → 자연스러운 한국어 뜻 순서로 한 줄씩 정리해 줘.',
-                '가사 한 묶음은 최대 3줄이고, 뜻이 없으면 2줄, 발음이 필요 없는 영어 구절은 1줄로 둬.',
-                '반복되는 구절과 하이픈, 문장부호를 보존하고 임의로 가사를 만들지 마.',
-                '내가 제공한 원문만 처리하고, 원문이 없으면 먼저 가사를 붙여넣어 달라고 요청해 줘.',
-                '결과는 부가 설명 없이 복사하기 쉬운 일반 텍스트로 출력해 줘.',
-                existing?'':'',
-                existing?'아래는 내가 제공하는 가사 원문이야.':'',
-                existing?existing:''
-            ].filter((line,index,arr)=>line!==''||index<4).join('\n');
+                '[제목] '+title,
+                '[가수명] '+artist,
+                '[요청 양식] '+formats[language],
+                '곡에 맞는 가사를 정확히 확인하고 싶어. 확인할 수 없는 가사는 지어내지 말아 줘.',
+                '저작권상 전체 가사를 제공할 수 없다면, 내가 가사를 붙여넣으면 해당 양식으로 정리해 줘.',
+                '가사 원문의 줄바꿈과 반복 구절, 하이픈, 문장부호는 최대한 유지해 줘.',
+                existing?'[내가 제공한 가사]\n'+existing:''
+            ].filter(Boolean).join('\n');
             const url='https://chatgpt.com/?q='+encodeURIComponent(prompt);
             const opened=window.open(url,'_blank','noopener,noreferrer');
             if(!opened)window.location.href=url;
+            const fallbackCopy=()=>{
+                const area=document.createElement('textarea');
+                area.value=prompt;area.setAttribute('readonly','');
+                area.style.position='fixed';area.style.opacity='0';document.body.append(area);
+                area.select();let copied=false;
+                try{copied=document.execCommand('copy');}catch(e){}
+                area.remove();return copied;
+            };
+            if(navigator.clipboard&&window.isSecureContext){
+                navigator.clipboard.writeText(prompt).then(()=>{status.textContent='프롬프트 복사 완료 · ChatGPT로 이동했어요.';}).catch(()=>{status.textContent=fallbackCopy()?'프롬프트 복사 완료 · ChatGPT로 이동했어요.':'ChatGPT로 이동했어요. 프롬프트 복사는 기기 설정에 따라 제한될 수 있어요.';});
+            }else{
+                status.textContent=fallbackCopy()?'프롬프트 복사 완료 · ChatGPT로 이동했어요.':'ChatGPT로 이동했어요. 프롬프트 복사는 기기 설정에 따라 제한될 수 있어요.';
+            }
         }
         function selectKaraokeSong(index){
             const song=songLookupItems[index];if(!song)return;
