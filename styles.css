@@ -200,3 +200,23 @@ body.keyboard-open #authGate{height:var(--app-visible-height,100dvh)}
 
 /* v11.5: shorter song-detail bottom sheet, with visible space above. */
 #lyricPopup.slide-up{height:calc(100dvh - max(120px,env(safe-area-inset-top,0px) + 68px));max-height:calc(100dvh - max(120px,env(safe-area-inset-top,0px) + 68px))}
+
+/* v11.7: replace the intro with an in-place loading skeleton. */
+body.auth-loading #authGate{display:none!important}
+body.auth-loading #appSkeleton{display:block!important}
+body.auth-loading > :not(#appSkeleton):not(script){display:none!important}
+#appSkeleton{display:none;position:fixed;inset:0;z-index:1100;background:#fff;padding:calc(28px + env(safe-area-inset-top,0px)) 22px 24px;overflow:hidden}
+.skeleton-shimmer{background:linear-gradient(100deg,#ededf0 20%,#f7f7f9 40%,#ededf0 60%);background-size:200% 100%;animation:skeletonPulse 1.4s ease-in-out infinite}
+.skeleton-title{width:46%;height:32px;border-radius:9px;margin-bottom:26px}
+.skeleton-search{height:48px;border-radius:15px;margin-bottom:18px}
+.skeleton-pills{display:flex;gap:9px;margin-bottom:25px}
+.skeleton-pills span{width:67px;height:34px;border-radius:999px}
+.skeleton-pills span:first-child{width:42px}
+.skeleton-list{display:flex;flex-direction:column;gap:12px}
+.skeleton-song{display:flex;align-items:center;gap:14px;padding:15px 12px;border-radius:18px;background:#fafafa}
+.skeleton-song>span{width:46px;height:46px;border-radius:12px;flex-shrink:0}
+.skeleton-song>div{display:flex;flex-direction:column;gap:9px;flex:1}
+.skeleton-song i{display:block;width:70%;height:14px;border-radius:6px}
+.skeleton-song i:last-child{width:42%;height:10px}
+@keyframes skeletonPulse{to{background-position-x:-200%}}
+@media(prefers-reduced-motion:reduce){.skeleton-shimmer{animation:none}}
