@@ -183,72 +183,10 @@ body.keyboard-open .bottom-nav{display:none}
 body.keyboard-open .slide-up{height:var(--app-visible-height,100dvh);max-height:var(--app-visible-height,100dvh)}
 body.keyboard-open #authGate{height:var(--app-visible-height,100dvh)}
 
-/* Clear, unblurred page headers. */
-.header-section{background:#fff;backdrop-filter:none;-webkit-backdrop-filter:none}
-/* Compact centered bottom toolbar. */
-.bottom-nav{width:calc(100% - 32px);max-width:275px;left:50%;right:auto;margin:0;transform:translateX(-50%);box-sizing:border-box}
-@media(max-width:360px){.bottom-nav{left:50%;right:auto;width:calc(100% - 16px);max-width:275px}}
-/* Prevent iOS automatic focus zoom without reducing text legibility. */
-input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),textarea,select,[contenteditable="true"],#lyricsEditor,#lyricsEditor *{font-size:16px!important}
-#authPassword{font-size:16px!important}
-html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
-
-/* iPhone standalone: the app fills the entire screen, including home-indicator space. */
-html{position:fixed;inset:0;width:100%;height:100%;overflow:hidden;background:#fff}
-body{position:fixed;inset:0;width:100%;height:100%;min-height:0;max-height:none;overflow:hidden;background:#fff;padding:0;margin:0}
-.tab-content{height:100%;max-height:100%;min-height:0;overflow:hidden}
-.tab-content.active{display:flex}
-.scroll-body{flex:1 1 auto;min-height:0;overscroll-behavior-y:contain;padding-bottom:calc(108px + env(safe-area-inset-bottom,0px))}
-.bottom-nav{position:fixed;bottom:calc(12px + env(safe-area-inset-bottom,0px));width:calc(100% - 32px);max-width:275px;left:50%;right:auto;transform:translateX(-50%);margin:0}
-#sheetBackdrop{position:fixed;inset:0}
-.slide-up{height:calc(100% - env(safe-area-inset-top,0px));max-height:100%;bottom:0}
-#authGate{height:100%;min-height:0}
-body.keyboard-open .tab-content{height:var(--app-visible-height,100%);max-height:var(--app-visible-height,100%)}
-body.keyboard-open #authGate{height:var(--app-visible-height,100%)}
-body.keyboard-open .slide-up{height:var(--app-visible-height,100%);max-height:var(--app-visible-height,100%)}
-@supports(-webkit-touch-callout:none){html,body{height:100%;min-height:0}.scroll-body{-webkit-overflow-scrolling:touch}}
-
-/* Round the bottom toolbar by more than 5% (22px -> 28px). */
-.bottom-nav{border-radius:28px}
-
-/* v10.5: fully pill-shaped toolbar (50% corner rounding). */
-.bottom-nav{border-radius:9999px}
-
-/* v10.7: pill-shaped selected tab with smooth sliding indicator. */
-.bottom-nav{isolation:isolate;overflow:hidden;--nav-active-index:0}
+/* v11.3: current toolbar preserved on the v10.4 application baseline. */
+.bottom-nav{width:calc(100% - 32px);max-width:275px;left:50%;right:auto;margin:0;transform:translateX(-50%);box-sizing:border-box;border-radius:9999px;isolation:isolate;overflow:hidden;--nav-active-index:0;bottom:calc(12px + env(safe-area-inset-bottom,0px))}
 .bottom-nav::before{content:"";position:absolute;z-index:0;top:6px;bottom:6px;left:6px;width:calc((100% - 12px)/3);background:var(--ios-text);border-radius:9999px;transform:translateX(calc(var(--nav-active-index)*100%));transition:transform .28s cubic-bezier(.22,1,.36,1);pointer-events:none}
 .bottom-nav .nav-item{position:relative;z-index:1;min-width:0;border-radius:9999px;background:transparent!important;transition:color .22s ease}
 .bottom-nav .nav-item.active{background:transparent!important;color:#fff}
-@media(prefers-reduced-motion:reduce){.bottom-nav::before{transition:none}.bottom-nav .nav-item{transition:none}}
-
-/* v10.8: correct iOS installed-app viewport clipping.
-   The previous fixed html/body height:100% used the shorter layout viewport. */
-html{position:relative!important;inset:auto!important;height:100dvh!important;min-height:100dvh!important;max-height:100dvh!important;overflow:hidden!important}
-body{position:relative!important;inset:auto!important;height:100dvh!important;min-height:100dvh!important;max-height:100dvh!important;overflow:hidden!important}
-.tab-content{height:100dvh!important;max-height:100dvh!important;min-height:0!important}
-.scroll-body{min-height:0;flex:1 1 0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:calc(100px + env(safe-area-inset-bottom,0px))}
-.bottom-nav{position:fixed;bottom:calc(12px + env(safe-area-inset-bottom,0px));max-width:275px;border-radius:9999px}
-#authGate{height:100dvh!important;max-height:100dvh}
-body.keyboard-open .tab-content{height:var(--app-visible-height,100dvh)!important;max-height:var(--app-visible-height,100dvh)!important}
-body.keyboard-open #authGate{height:var(--app-visible-height,100dvh)!important;max-height:var(--app-visible-height,100dvh)!important}
-@supports not (height:100dvh){html,body,.tab-content{height:100vh!important;max-height:100vh!important}}
-
-/* v10.9: one measured iOS app shell, rather than conflicting 100%/dvh rules. */
-:root{--app-shell-height:100dvh;--app-safe-top:env(safe-area-inset-top,0px);--app-safe-bottom:env(safe-area-inset-bottom,0px)}
-html{position:fixed!important;inset:0!important;width:100%!important;height:var(--app-shell-height)!important;min-height:0!important;max-height:none!important;overflow:hidden!important}
-body{position:fixed!important;inset:0 auto auto 0!important;width:100%!important;height:var(--app-shell-height)!important;min-height:0!important;max-height:none!important;overflow:hidden!important;margin:0!important}
-.tab-content,.tab-content.active{height:100%!important;max-height:100%!important;min-height:0!important}
-.header-section{flex:0 0 auto}
-/* Use only the device-reported safe area, without added fixed top padding. */
-.header-section{padding-top:env(safe-area-inset-top,0px)!important}
-.scroll-body{flex:1 1 0!important;min-height:0!important;overflow-x:hidden;overflow-y:auto;padding-bottom:calc(112px + var(--app-safe-bottom));overscroll-behavior:contain}
-.bottom-nav{position:absolute!important;bottom:calc(12px + var(--app-safe-bottom))!important;left:50%!important;right:auto!important;max-width:275px!important;transform:translateX(-50%)!important;border-radius:9999px!important}
-#authGate{height:100%!important;max-height:100%!important}
-.slide-up{position:absolute!important;bottom:0!important;max-height:100%!important}
-#sheetBackdrop{position:absolute!important;inset:0!important}
-body.keyboard-open .tab-content{height:100%!important;max-height:100%!important}
-body.keyboard-open #authGate{height:100%!important;max-height:100%!important}
-body.keyboard-open .slide-up{max-height:100%!important}
-html,body{touch-action:pan-x pan-y;-webkit-text-size-adjust:100%;text-size-adjust:100%}
-button,a,input,textarea,select,[contenteditable],.nav-item,.song-card,.filter-pill{touch-action:manipulation}
-input:not([type=hidden]):not([type=checkbox]):not([type=radio]),textarea,select,[contenteditable=true]{font-size:16px!important}
+@media(max-width:360px){.bottom-nav{left:50%;right:auto;width:calc(100% - 16px);max-width:275px}}
+@media(prefers-reduced-motion:reduce){.bottom-nav::before,.bottom-nav .nav-item{transition:none}}
