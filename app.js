@@ -60,12 +60,12 @@
             message.hidden=false;
             if(!formatted){
                 message.dataset.state='error';
-                message.textContent=!lines.length?'가사를 먼저 입력해 주세요.':lines.length%3?'일본어·발음·해석을 3줄씩 입력해 주세요. 현재 '+lines.length+'줄입니다.':'3줄씩 원문(일본어·영어) → 발음 → 해석 순서인지 확인해 주세요.';
+                message.textContent=!lines.length?'가사를 먼저 입력해 주세요.':lines.length%3?'원문·발음·뜻을 3줄씩 입력해 주세요. 현재 '+lines.length+'줄입니다.':'원문(일본어·중국어·영어) → 발음 → 뜻 순서인지 확인해 주세요.';
                 return;
             }
             editor.innerHTML=formatted;
             message.dataset.state='success';
-            message.textContent=(lines.length/3)+'개 묶음의 서식을 적용했어요. 불필요한 빈 줄과 주석도 정리했어요.';
+            message.textContent=(lines.length/3)+'개 묶음을 자동 정리하고 3줄 서식을 적용했어요.';
             lyricsSelection=null;
             updateLyricsTools();
         }
