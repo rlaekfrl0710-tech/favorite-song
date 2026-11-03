@@ -22,8 +22,14 @@
             document.getElementById('lyricsEditor').addEventListener('paste',e=>{const clipboard=e.clipboardData;if(!clipboard)return;const html=clipboard.getData('text/html'),text=clipboard.getData('text/plain');if(!html&&!text)return;e.preventDefault();const cleaned=html?cleanLyricsHtml(html):'',formatted=cleaned&&hasLyricsFormatting(cleaned)?cleaned:formatPlainLyrics(text)||cleaned||'<div style="white-space:pre-wrap">'+escapeText(text)+'</div>';document.execCommand('insertHTML',false,formatted);updateLyricsTools();});
         }
 
+        function normalizeJapaneseLyricLines(text){
+            return String(text||'').replace(/\r/g,'\n').replace(/\u00a0/g,' ').split('\n')
+                .map(line=>line.replace(/[\u200b-\u200d\ufeff]/g,'').trim())
+                .filter(line=>line&&!/^(?:\/\/|#|<!--|-->|\/\*|\*\/|\* |※|주석\s*[:：]|메모\s*[:：]|참고\s*[:：]|출처\s*[:：]|작사\s*[:：]|작곡\s*[:：]|편곡\s*[:：]|번역\s*[:：]|가사\s*[:：]|\[[^\]]*(?:verse|chorus|bridge|intro|outro|간주|후렴|1절|2절)[^\]]*\])/.test(line))
+                .map(line=>line.replace(/\s*(?:\/\/|#)\s*(?:주석|메모|참고)\s*[:：].*$/,'').trim()).filter(Boolean);
+        }
         function formatPlainLyrics(text){
-            const lines=String(text||'').split(/\r?\n/).map(line=>line.trim()).filter(Boolean);
+            const lines=normalizeJapaneseLyricLines(text);
             if(lines.length<3||lines.length%3)return '';
             for(let i=0;i<lines.length;i+=3){
                 if(!/[\u3040-\u30ff\u3400-\u9fff]/.test(lines[i])||!/[가-힣]/.test(lines[i+1])||!/[가-힣]/.test(lines[i+2]))return '';
@@ -37,17 +43,23 @@
         }
         function applyJapaneseLyricsFormat(){
             const editor=document.getElementById('lyricsEditor');
+            const message=document.getElementById('japaneseLyricsFormatMessage');
             const text=editor.innerText||editor.textContent||'';
+            const lines=normalizeJapaneseLyricLines(text);
             const formatted=formatPlainLyrics(text);
-            const message=document.getElementById('songFormMessage');
-            if(!formatted){message.textContent='일본어 원문 → 한글 발음 → 한글 해석 순서로 3줄씩 입력해 주세요.';return;}
+            message.hidden=false;
+            if(!formatted){
+                message.dataset.state='error';
+                message.textContent=!lines.length?'가사를 먼저 입력해 주세요.':lines.length%3?'일본어·발음·해석을 3줄씩 입력해 주세요. 현재 '+lines.length+'줄입니다.':'3줄씩 일본어 원문 → 한글 발음 → 한글 해석 순서인지 확인해 주세요.';
+                return;
+            }
             editor.innerHTML=formatted;
-            message.textContent='';
+            message.dataset.state='success';
+            message.textContent=(lines.length/3)+'개 묶음의 서식을 적용했어요. 불필요한 빈 줄과 주석도 정리했어요.';
             lyricsSelection=null;
             updateLyricsTools();
-            editor.focus({preventScroll:true});
         }
-                function hasLyricsFormatting(html){const doc=new DOMParser().parseFromString(html,'text/html');return !!doc.querySelector('b,strong,i,em,u,s,font,[style*="color"],[style*="font-weight"],[style*="font-style"],[style*="text-decoration"]');}
+        function hasLyricsFormatting(html){const doc=new DOMParser().parseFromString(html,'text/html');return !!doc.querySelector('b,strong,i,em,u,s,font,[style*="color"],[style*="font-weight"],[style*="font-style"],[style*="text-decoration"]');}
         function cleanLyricsHtml(html){const source=new DOMParser().parseFromString(html,'text/html'),output=document.createElement('div');const properties=['color','backgroundColor','fontWeight','fontStyle','textDecoration','textAlign','whiteSpace','letterSpacing','marginBottom','lineHeight'];Array.from(source.querySelectorAll('style')).forEach(style=>{const rules=style.textContent.matchAll(/([^{}]+)\{([^{}]*)\}/g);for(const rule of rules){try{const declaration=document.createElement('span');declaration.style.cssText=rule[2];source.querySelectorAll(rule[1]).forEach(node=>properties.forEach(key=>{if(!node.style[key]&&declaration.style[key])node.style[key]=declaration.style[key];}));}catch(e){}}});const allowed=new Set(['DIV','P','BR','SPAN','B','STRONG','I','EM','U','S','FONT','UL','OL','LI','BLOCKQUOTE','H1','H2','H3','H4','H5','H6','PRE']);const blocked=new Set(['SCRIPT','STYLE','IFRAME','OBJECT','EMBED','SVG','MATH','IMG','VIDEO','AUDIO','LINK','META']);function copy(node,parent){if(node.nodeType===3){parent.appendChild(document.createTextNode(node.textContent));return;}if(node.nodeType!==1||blocked.has(node.tagName))return;let target=parent;if(allowed.has(node.tagName)){target=document.createElement(node.tagName==='FONT'?'span':node.tagName.toLowerCase());properties.forEach(key=>{if(node.style[key])target.style[key]=node.style[key];});if(node.tagName==='FONT'&&node.getAttribute('color'))target.style.color=node.getAttribute('color');parent.appendChild(target);}Array.from(node.childNodes).forEach(child=>copy(child,target));}Array.from(source.body.childNodes).forEach(node=>copy(node,output));return output.innerHTML;}
 
         function switchTab(tabId, el) {
