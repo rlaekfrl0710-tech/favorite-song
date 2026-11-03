@@ -182,3 +182,13 @@ body.keyboard-open .tab-content{height:var(--app-visible-height,100dvh);max-heig
 body.keyboard-open .bottom-nav{display:none}
 body.keyboard-open .slide-up{height:var(--app-visible-height,100dvh);max-height:var(--app-visible-height,100dvh)}
 body.keyboard-open #authGate{height:var(--app-visible-height,100dvh)}
+
+/* Clear, unblurred page headers. */
+.header-section{background:#fff;backdrop-filter:none;-webkit-backdrop-filter:none}
+/* Compact centered bottom toolbar. */
+.bottom-nav{width:calc(100% - 32px);max-width:275px;left:50%;right:auto;margin:0;transform:translateX(-50%);box-sizing:border-box}
+@media(max-width:360px){.bottom-nav{left:50%;right:auto;width:calc(100% - 16px);max-width:275px}}
+/* Prevent iOS automatic focus zoom without reducing text legibility. */
+input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),textarea,select,[contenteditable="true"],#lyricsEditor,#lyricsEditor *{font-size:16px!important}
+#authPassword{font-size:16px!important}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
