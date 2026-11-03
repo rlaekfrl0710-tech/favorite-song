@@ -267,3 +267,14 @@ body.keyboard-open .slide-up{max-height:100%!important}
 html,body{touch-action:pan-x pan-y;-webkit-text-size-adjust:100%;text-size-adjust:100%}
 button,a,input,textarea,select,[contenteditable],.nav-item,.song-card,.filter-pill{touch-action:manipulation}
 input:not([type=hidden]):not([type=checkbox]):not([type=radio]),textarea,select,[contenteditable=true]{font-size:16px!important}
+
+/* v11.0: extra physical top clearance for iPhone 17 Pro standalone. */
+@media(display-mode:standalone),(display-mode:fullscreen){
+  .header-section{padding-top:calc(max(62px,env(safe-area-inset-top,0px)) + 24px)!important}
+  #authGate{padding-top:calc(max(62px,env(safe-area-inset-top,0px)) + 40px)!important}
+}
+@supports(-webkit-touch-callout:none){
+  @media(display-mode:standalone){
+    .header-section{padding-top:calc(max(62px,env(safe-area-inset-top,0px)) + 24px)!important}
+  }
+}
