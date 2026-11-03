@@ -340,3 +340,8 @@ body.keyboard-open #tab-add #lyricsEditor{scroll-margin-bottom:16px}
 .song-lookup-details strong{font-size:13px;color:#1c1e21;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .song-lookup-details small{font-size:11px;color:#9298a0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .song-lookup-number{flex-shrink:0;color:#555c66;font-size:11px;font-weight:600}
+
+/* v15.0: unobtrusive ChatGPT handoff beside lyrics label. */
+.lyrics-label-actions{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.lyrics-label-actions #chatgptLyricsBtn{flex:0 0 auto;border:0;background:transparent;color:#747a83;font-size:12px;font-weight:600;padding:6px 0;white-space:nowrap}
+.lyrics-label-actions #chatgptLyricsBtn:active{color:#1c1e21}

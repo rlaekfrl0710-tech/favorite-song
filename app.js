@@ -170,6 +170,36 @@
             }catch(error){if(token===window.songLookupToken)status.textContent='검색 오류: '+error.message;}
             finally{if(token===window.songLookupToken)button.disabled=false;}
         }
+        function openLyricsInChatGPT(){
+            const title=document.getElementById('inTitle').value.trim();
+            const artist=document.getElementById('inArtist').value.trim();
+            const editor=document.getElementById('lyricsEditor');
+            const existing=(editor.innerText||editor.textContent||'').trim();
+            const status=document.getElementById('songFormMessage');
+            if(!title||!artist){
+                status.textContent='ChatGPT로 이동하려면 제목과 가수를 먼저 입력해 주세요.';
+                document.getElementById(!title?'inTitle':'inArtist').focus();
+                return;
+            }
+            status.textContent='';
+            const prompt=[
+                '노래방에서 보기 편하도록 일본어 가사를 정리하고 싶어.',
+                '곡명: '+title,
+                '가수: '+artist,
+                '',
+                '일본어 원문 → 한글 발음 → 자연스러운 한국어 뜻 순서로 한 줄씩 정리해 줘.',
+                '가사 한 묶음은 최대 3줄이고, 뜻이 없으면 2줄, 발음이 필요 없는 영어 구절은 1줄로 둬.',
+                '반복되는 구절과 하이픈, 문장부호를 보존하고 임의로 가사를 만들지 마.',
+                '내가 제공한 원문만 처리하고, 원문이 없으면 먼저 가사를 붙여넣어 달라고 요청해 줘.',
+                '결과는 부가 설명 없이 복사하기 쉬운 일반 텍스트로 출력해 줘.',
+                existing?'':'',
+                existing?'아래는 내가 제공하는 가사 원문이야.':'',
+                existing?existing:''
+            ].filter((line,index,arr)=>line!==''||index<4).join('\n');
+            const url='https://chatgpt.com/?q='+encodeURIComponent(prompt);
+            const opened=window.open(url,'_blank','noopener,noreferrer');
+            if(!opened)window.location.href=url;
+        }
         function selectKaraokeSong(index){
             const song=songLookupItems[index];if(!song)return;
             const title=document.getElementById('inTitle'),artist=document.getElementById('inArtist');
