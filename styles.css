@@ -279,3 +279,9 @@ button,a,input,textarea,select{touch-action:manipulation}
 
 /* v12.9: compact favorites filter pill */
 #pill-FAV{flex:0 0 40px;width:40px;min-width:40px}
+
+/* v13.1: magic-wand auto-format control integrated with lyric toolbar */
+.pro-toolbar{display:flex;gap:8px;align-items:center}
+.pro-toolbar #japaneseLyricsFormatBtn{flex:0 0 40px;width:40px;min-width:40px;height:40px;margin:0;padding:0;border:1px solid transparent;border-radius:11px;background:#f4f4f5;color:#44474d}
+.pro-toolbar #japaneseLyricsFormatBtn svg{display:block;width:20px;height:20px}
+.pro-toolbar #japaneseLyricsFormatBtn:active{background:#e9e9ed}
