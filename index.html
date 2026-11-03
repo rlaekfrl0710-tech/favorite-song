@@ -15,7 +15,7 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/styles.css?v=13.2">
+    <link rel="stylesheet" href="/styles.css?v=13.3">
 </head>
 <body onload="startAuth()" class="auth-locked auth-loading">
     <section id="authGate" aria-labelledby="authTitle"><form id="authForm" onsubmit="submitAuth(event)"><p class="auth-eyebrow">MY KARAOKE</p><h1 id="authTitle">My 노래방</h1><p id="authDescription">로그인 상태를 확인하고 있어요.</p><input id="authPassword" type="password" autocomplete="current-password" placeholder="비밀번호" aria-label="비밀번호" required minlength="6" maxlength="128" hidden><button id="authSubmit" type="submit" hidden>로그인</button><p id="authMessage" role="status"></p></form></section>
@@ -74,11 +74,11 @@
             </div>
 
             <div class="lyrics-label">가사 <span>선택</span></div><div class="pro-toolbar" role="toolbar" aria-label="가사 서식">
-                <button type="button" id="japaneseLyricsFormatBtn" class="japanese-lyrics-format tool-btn" onclick="applyJapaneseLyricsFormat()" aria-label="일본어 가사 자동 서식" title="일본어 가사 자동 서식"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m4 20 12-12"/><path d="m14 4 1-2 1 2 2 1-2 1-1 2-1-2-2-1 2-1Z"/><path d="M19 11v4m-2-2h4M6 3v4M4 5h4"/></svg></button>
+                <button type="button" id="japaneseLyricsFormatBtn" class="tool-btn" onclick="applyJapaneseLyricsFormat()" aria-label="일본어 가사 자동 서식" title="일본어 가사 자동 서식"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 19 12-12 2 2L7 21l-2-2Z"/><path d="M4 3v4M2 5h4M15 2v4m-2-2h4M20 13v4m-2-2h4"/></svg></button>
                 <button onpointerdown="event.preventDefault()" data-format="bold" aria-pressed="false" onclick="execCmd('bold')" class="tool-btn" type="button" aria-label="굵게"><span class="lyric-glyph lyric-glyph-bold" aria-hidden="true">B</span></button>
-                <button onpointerdown="event.preventDefault()" data-format="foreColor" aria-pressed="false" onclick="execCmd('foreColor', '#FF8787')" class="tool-btn" type="button" aria-label="글자색"><span class="lyric-glyph lyric-glyph-color" aria-hidden="true">A</span></button>
-                <button onpointerdown="event.preventDefault()" data-format="hiliteColor" aria-pressed="false" onclick="execCmd('hiliteColor', '#FEF08A')" class="tool-btn" type="button" aria-label="형광펜"><span class="lyric-glyph lyric-glyph-highlight" aria-hidden="true">A</span></button>
-                <button onpointerdown="event.preventDefault()" onclick="execCmd('removeFormat')" class="tool-btn" type="button" aria-label="서식 지우기"><svg class="lyric-glyph-erase" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m4 15 9-9a2 2 0 0 1 2.8 0l3.2 3.2a2 2 0 0 1 0 2.8L11 20H7l-3-3a1.4 1.4 0 0 1 0-2Z"/><path d="m9 10 7 7M12 20h8"/></svg></button>
+                <button onpointerdown="event.preventDefault()" data-format="foreColor" aria-pressed="false" onclick="execCmd('foreColor', '#FF5E79')" class="tool-btn" type="button" aria-label="글자색"><span class="lyric-glyph lyric-glyph-color" aria-hidden="true">T</span></button>
+                <button onpointerdown="event.preventDefault()" data-format="hiliteColor" aria-pressed="false" onclick="execCmd('hiliteColor', '#FEF08A')" class="tool-btn" type="button" aria-label="형광펜"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 17 8-9 5 5-8 8H5l-1-4Z"/><path d="m14 6 4-4M15 20h6"/></svg></button>
+                <button onpointerdown="event.preventDefault()" onclick="execCmd('removeFormat')" class="tool-btn" type="button" aria-label="서식 지우기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 15 9-9a2 2 0 0 1 2.8 0l3.2 3.2a2 2 0 0 1 0 2.8L11 20H7l-3-3a1.4 1.4 0 0 1 0-2Z"/><path d="m9 10 7 7M12 20h8"/></svg></button>
             </div>
 
             <p id="japaneseLyricsFormatMessage" class="japanese-lyrics-format-message" role="status" aria-live="polite" hidden></p>
@@ -101,7 +101,7 @@
             <div class="settings-group sync-group"><div class="sync-summary"><i class="fas fa-cloud" aria-hidden="true"></i><p id="cloudStatus" role="status">이 기기에 저장됨</p></div><button type="button" onclick="initializeCloud()" class="settings-row"><i class="fas fa-rotate" aria-hidden="true"></i><span>동기화 다시 시도</span><i class="fas fa-chevron-right row-chevron" aria-hidden="true"></i></button></div>
             <div class="settings-group"><button type="button" onclick="logoutApp()" class="settings-row"><i class="fas fa-arrow-right-from-bracket" aria-hidden="true"></i><span>로그아웃</span><i class="fas fa-chevron-right row-chevron" aria-hidden="true"></i></button><button type="button" onclick="clearData()" class="settings-row danger-row"><i class="fas fa-trash-alt" aria-hidden="true"></i><span>모든 곡 휴지통으로 이동</span><i class="fas fa-chevron-right row-chevron" aria-hidden="true"></i></button></div>
             <div class="settings-group" aria-label="앱 새로고침"><button type="button" onclick="refreshAppAssets(this)" class="settings-row"><i class="fas fa-rotate" aria-hidden="true"></i><span>즉시 새로고침</span><i class="fas fa-chevron-right row-chevron" aria-hidden="true"></i></button></div>
-            <div class="settings-group" aria-label="앱 정보"><div class="settings-row" role="group" aria-label="앱 버전"><i class="fas fa-circle-info" aria-hidden="true"></i><span>앱 버전</span><span class="settings-version-value">v13.2</span></div></div>
+            <div class="settings-group" aria-label="앱 정보"><div class="settings-row" role="group" aria-label="앱 버전"><i class="fas fa-circle-info" aria-hidden="true"></i><span>앱 버전</span><span class="settings-version-value">v13.3</span></div></div>
         </div>
     </section>
 
@@ -133,6 +133,6 @@
         </div>
     </div>
 
-    <script src="/app.js?v=13.2"></script>
+    <script src="/app.js?v=13.3"></script>
 </body>
 </html>
