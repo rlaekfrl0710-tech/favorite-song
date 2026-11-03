@@ -349,3 +349,15 @@ body.keyboard-open #tab-add #lyricsEditor{scroll-margin-bottom:16px}
 /* v15.1: discreet language picker beside ChatGPT share action. */
 .lyrics-label-actions #lyricsShareLanguage{margin-left:auto;min-width:0;max-width:76px;background:transparent;border:0;color:#747a83;font-size:12px;font-weight:500;outline-offset:2px}
 .lyrics-label-actions #chatgptLyricsBtn{margin-left:4px}
+
+/* v15.2: group format with label; place share actions beneath the editor. */
+#tab-add .lyrics-label-actions{display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0;margin-bottom:10px}
+#tab-add .lyrics-label-actions>span{flex:0 0 auto;white-space:nowrap}
+#tab-add .lyrics-label-actions .pro-toolbar{width:auto;flex:0 1 auto;min-width:0;margin:0;justify-content:flex-end;gap:7px}
+#tab-add .lyrics-label-actions .pro-toolbar #japaneseLyricsFormatMessage{flex:0 1 auto;line-height:1.4;max-width:80px;text-align:right}
+#tab-add .lyrics-label-actions .pro-toolbar #autoFormatUndoBtn{margin-left:0}
+#tab-add .lyrics-share-actions{display:flex;align-items:center;justify-content:flex-end;gap:10px;margin-top:10px;min-width:0}
+#tab-add .lyrics-share-actions #lyricsShareLanguage{min-width:0;max-width:120px;height:36px;padding:0 8px;border:1px solid #e5e8eb;border-radius:9px;background:#fff;color:#656b76;font-size:12px;outline-offset:2px}
+#tab-add .lyrics-share-actions #chatgptLyricsBtn{flex:0 0 auto;min-height:36px;padding:0 12px;border:1px solid #e5e8eb;border-radius:9px;background:#fff;color:#555c66;font-size:12px;font-weight:600;white-space:nowrap}
+#tab-add .lyrics-share-actions #chatgptLyricsBtn:active{background:#f2f4f7}
+@media(max-width:360px){#tab-add .lyrics-label-actions .pro-toolbar{gap:4px}#tab-add .lyrics-label-actions .pro-toolbar #japaneseLyricsFormatBtn{padding:0 8px;font-size:10px}#tab-add .lyrics-label-actions .pro-toolbar #japaneseLyricsFormatMessage{font-size:11px}#tab-add .lyrics-label-actions .pro-toolbar #autoFormatUndoBtn{font-size:11px;padding:0 2px}}
