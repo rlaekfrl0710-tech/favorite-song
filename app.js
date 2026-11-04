@@ -117,7 +117,7 @@
         function switchTab(tabId, el) {
             const previousTab=document.querySelector('.tab-content.active');
             const nextTab=document.getElementById('tab-' + tabId);
-            const order=['home','add','chart','more'];
+            const order=['home','add','more'];
             const from=order.indexOf(previousTab?.id.replace('tab-',''));
             const to=order.indexOf(tabId);
             const forward=from>=0&&to>=0&&((to-from+order.length)%order.length===1);
@@ -135,61 +135,9 @@
             el.classList.add('active');
             document.getElementById('bottom-nav').style.setProperty('--nav-active-index',Array.prototype.indexOf.call(el.parentElement.children,el));
             if(tabId==='home')renderList();
-            if(tabId==='chart')loadKaraokeChart(false);
             window.scrollTo(0,0);
         }
 
-
-        let karaokeChartGenre='all';
-        let karaokeChartData=null;
-        let karaokeChartPromise=null;
-        function setKaraokeChart(genre){
-            karaokeChartGenre=['all','kpop','jpop'].includes(genre)?genre:'all';
-            document.querySelectorAll('[data-chart-genre]').forEach(button=>button.classList.toggle('active',button.dataset.chartGenre===karaokeChartGenre));
-            renderKaraokeChart();
-        }
-        function refreshKaraokeChart(){loadKaraokeChart(true);}
-        async function loadKaraokeChart(force){
-            const status=document.getElementById('chartStatus');
-            if(karaokeChartData&&!force){renderKaraokeChart();return;}
-            status.textContent='차트를 불러오는 중…';
-            if(!karaokeChartPromise){
-                karaokeChartPromise=fetch('/chart-data.json'+(force?'?t='+Date.now():''),{cache:force?'no-store':'default'})
-                    .then(async response=>{if(!response.ok)throw Error('차트 파일을 읽을 수 없어요.');return response.json();})
-                    .then(payload=>{if(!payload||!payload.categories)throw Error('차트 파일 형식 오류');karaokeChartData=payload;return payload;})
-                    .finally(()=>{karaokeChartPromise=null;});
-            }
-            try{await karaokeChartPromise;renderKaraokeChart();}
-            catch(error){status.textContent='차트 파일 오류';document.getElementById('chartSongs').textContent=error.message;}
-        }
-        function renderKaraokeChart(){
-            if(!karaokeChartData)return;
-            const entries=karaokeChartData.categories[karaokeChartGenre]||[];
-            const q=(document.getElementById('chartSearchInput')?.value||'').trim().toLocaleLowerCase();
-            const filtered=q?entries.filter(song=>[song.title,song.artist,song.tj].some(value=>String(value||'').toLocaleLowerCase().includes(q))):entries;
-            const archive=Boolean(karaokeChartData.archive);
-            const stamp=karaokeChartData.updatedAt;
-            const date=stamp?new Date(stamp).toLocaleDateString('ko-KR'):'';
-            document.getElementById('chartStatus').textContent=(archive?'보관 차트':'TJ TOP '+entries.length)+(date?' · '+date:'')+(q?' · 검색 '+filtered.length+'곡':'');
-            const list=document.getElementById('chartSongs');list.replaceChildren();
-            if(!filtered.length){
-                const empty=document.createElement('p');empty.className='chart-error';
-                empty.textContent=q?'검색 결과가 없어요.':archive?'전체 순위는 최신 수집 후 표시됩니다. 가요·J-POP 보관 차트는 확인할 수 있어요.':'수집된 순위가 없어요.';
-                list.append(empty);return;
-            }
-            const fragment=document.createDocumentFragment();
-            filtered.forEach(song=>{
-                const row=document.createElement('div');row.className='chart-song';
-                const rank=document.createElement('span');rank.className='chart-rank';rank.textContent=song.rank;
-                const detail=document.createElement('div');detail.className='chart-song-detail';
-                const title=document.createElement('strong');title.textContent=song.title;
-                const artist=document.createElement('span');artist.textContent=song.artist;
-                detail.append(title,artist);
-                const number=document.createElement('span');number.className='chart-song-number';number.textContent='TJ '+song.tj;
-                row.append(rank,detail,number);fragment.append(row);
-            });
-            list.append(fragment);
-        }
 
         let songLookupItems=[];
         async function searchKaraokeSongs(){
@@ -207,7 +155,7 @@
                 if(token!==window.songLookupToken)return;
                 if(!response.ok)throw Error(payload.error||'검색 서버에 연결하지 못했어요.');
                 songLookupItems=Array.isArray(payload.items)?payload.items:[];
-                status.textContent=songLookupItems.length?('검색 결과 '+songLookupItems.length+'개'):(payload.partial?'일부 검색 서비스에 연결하지 못했어요.':'결과가 없어요. 다른 표기로 검색하거나 직접 입력하세요.');
+                status.textContent=songLookupItems.length?('검색 결과 '+songLookupItems.length+'개 · 원하는 곡을 선택하세요.'):(payload.partial?'일부 검색 서비스가 응답하지 않았어요. 일본어 원제 또는 한글 발음으로 다시 검색해 보세요.':'검색 결과가 없어요. 일본어 원제·한글 발음·가수명으로 다시 검색하거나 직접 입력해 주세요.');
                 songLookupItems.forEach((song,index)=>{
                     const item=document.createElement('button');item.type='button';item.className='song-lookup-item';
                     const details=document.createElement('span');details.className='song-lookup-details';
