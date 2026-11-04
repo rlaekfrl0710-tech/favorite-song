@@ -21,7 +21,7 @@ module.exports=async function handler(req,res){
   if(items.length)return res.status(200).json({items,genre,snapshot:false,fetchedAt:new Date().toISOString()});
  }catch(error){console.warn('TJ chart unavailable; using dated archive:',error.message);}
  const korean=mapItems(archived.categories.kpop),japanese=mapItems(archived.categories.jpop);
- const items=genre==='kpop'?korean:genre==='jpop'?japanese:[...korean,...japanese].sort((x,y)=>x.rank-y.rank).map((x,i)=>({...x,rank:i+1})).slice(0,100);
+ const items=genre==='kpop'?korean:genre==='jpop'?japanese:[...korean.map(x=>({...x,rank:'—'})),...japanese.map(x=>({...x,rank:'—'}))].slice(0,100);
  if(!items.length)return res.status(503).json({error:'차트 데이터가 없습니다.'});
  return res.status(200).json({items,genre,snapshot:true,fetchedAt:archived.updatedAt,notice:'실시간 차트 연결 실패 · 과거 보관본 표시'});
 };
