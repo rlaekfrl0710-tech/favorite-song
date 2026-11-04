@@ -162,19 +162,20 @@
                 if(token!==karaokeChartRequest)return;
                 if(!response.ok)throw Error(payload.error||'차트를 가져오지 못했어요.');
                 if(!Array.isArray(payload.items)||!payload.items.length)throw Error('현재 순위 데이터가 없어요.');
+                window.karaokeChartSnapshot=Boolean(payload.snapshot);
                 karaokeChartCache.set(genre,{items:payload.items,fetchedAt:payload.fetchedAt,time:Date.now()});
                 renderKaraokeChart(payload.items,payload.fetchedAt);
             }catch(error){
                 if(token!==karaokeChartRequest)return;
-                status.textContent='차트를 불러오지 못했어요.';
-                const message=document.createElement('p');message.className='chart-error';message.textContent=error.message+' 잠시 후 새로고침하거나 공식 차트를 확인해 주세요.';
+                status.textContent='차트 연결 오류';
+                const message=document.createElement('p');message.className='chart-error';message.textContent=error.message;
                 list.append(message);
             }
         }
         function renderKaraokeChart(items,fetchedAt){
             const status=document.getElementById('chartStatus'),list=document.getElementById('chartSongs');
             const time=fetchedAt?new Date(fetchedAt).toLocaleString('ko-KR',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'}):'';
-            status.textContent='TJ 인기 TOP '+items.length+(time?' · 조회 '+time:'');
+            status.textContent=(window.karaokeChartSnapshot?'과거 보관 차트':'TJ 인기 TOP '+items.length)+(time?' · '+time:'');
             list.replaceChildren();
             const fragment=document.createDocumentFragment();
             items.forEach(song=>{
