@@ -155,7 +155,7 @@
                 if(token!==window.songLookupToken)return;
                 if(!response.ok)throw Error(payload.error||'검색 서버에 연결하지 못했어요.');
                 songLookupItems=Array.isArray(payload.items)?payload.items:[];
-                status.textContent=songLookupItems.length?('검색 결과 '+songLookupItems.length+'개 · 원하는 곡을 선택하세요.'):'검색 결과가 없어요. 다른 제목이나 가수로 검색해 보세요.';
+                status.textContent=songLookupItems.length?('검색 결과 '+songLookupItems.length+'개 · 원하는 곡을 선택하세요.'):(payload.partial?'일부 검색 서비스가 응답하지 않았어요. 일본어 원제 또는 한글 발음으로 다시 검색해 보세요.':'검색 결과가 없어요. 일본어 원제·한글 발음·가수명으로 다시 검색하거나 직접 입력해 주세요.');
                 songLookupItems.forEach((song,index)=>{
                     const item=document.createElement('button');item.type='button';item.className='song-lookup-item';
                     const details=document.createElement('span');details.className='song-lookup-details';
