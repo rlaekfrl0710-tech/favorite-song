@@ -15,7 +15,7 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/styles.css?v=15.9">
+    <link rel="stylesheet" href="/styles.css?v=16.0">
 </head>
 <body onload="startAuth()" class="auth-locked auth-loading">
     <section id="authGate" aria-labelledby="authTitle"><form id="authForm" onsubmit="submitAuth(event)"><h1 id="authTitle">My 노래방</h1><p id="authDescription">로그인 상태를 확인하고 있어요.</p><input id="authPassword" type="password" autocomplete="current-password" placeholder="비밀번호" aria-label="비밀번호" required minlength="6" maxlength="128" hidden><button id="authSubmit" type="submit" hidden>로그인</button><p id="authMessage" role="status"></p></form></section>
@@ -116,7 +116,7 @@
             <div class="settings-group sync-group"><div class="sync-summary"><i class="fas fa-cloud" aria-hidden="true"></i><p id="cloudStatus" role="status">이 기기에 저장됨</p></div><button type="button" onclick="initializeCloud()" class="settings-row"><i class="fas fa-rotate" aria-hidden="true"></i><span>동기화 다시 시도</span><i class="fas fa-chevron-right row-chevron" aria-hidden="true"></i></button></div>
             <div class="settings-group"><button type="button" onclick="logoutApp()" class="settings-row"><i class="fas fa-arrow-right-from-bracket" aria-hidden="true"></i><span>로그아웃</span><i class="fas fa-chevron-right row-chevron" aria-hidden="true"></i></button><button type="button" onclick="clearData()" class="settings-row danger-row"><i class="fas fa-trash-alt" aria-hidden="true"></i><span>모든 곡 휴지통으로 이동</span><i class="fas fa-chevron-right row-chevron" aria-hidden="true"></i></button></div>
             <div class="settings-group" aria-label="앱 새로고침"><button type="button" onclick="refreshAppAssets(this)" class="settings-row"><i class="fas fa-rotate" aria-hidden="true"></i><span>즉시 새로고침</span><i class="fas fa-chevron-right row-chevron" aria-hidden="true"></i></button></div>
-            <div class="settings-group" aria-label="앱 정보"><div class="settings-row" role="group" aria-label="앱 버전"><i class="fas fa-circle-info" aria-hidden="true"></i><span>앱 버전</span><span class="settings-version-value">v15.9</span></div></div>
+            <div class="settings-group" aria-label="앱 정보"><div class="settings-row" role="group" aria-label="앱 버전"><i class="fas fa-circle-info" aria-hidden="true"></i><span>앱 버전</span><span class="settings-version-value">v16.0</span></div></div>
         </div>
     </section>
 
@@ -149,6 +149,6 @@
         </div>
     </div>
 
-    <script src="/app.js?v=15.9"></script>
+    <script src="/app.js?v=16.0"></script>
 </body>
 </html>
