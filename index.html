@@ -15,7 +15,7 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/styles.css?v=16.1">
+    <link rel="stylesheet" href="/styles.css?v=15.5">
 </head>
 <body onload="startAuth()" class="auth-locked auth-loading">
     <section id="authGate" aria-labelledby="authTitle"><form id="authForm" onsubmit="submitAuth(event)"><h1 id="authTitle">My 노래방</h1><p id="authDescription">로그인 상태를 확인하고 있어요.</p><input id="authPassword" type="password" autocomplete="current-password" placeholder="비밀번호" aria-label="비밀번호" required minlength="6" maxlength="128" hidden><button id="authSubmit" type="submit" hidden>로그인</button><p id="authMessage" role="status"></p></form></section>
@@ -65,7 +65,7 @@
             </div>
             
             <section class="song-lookup" aria-label="노래방 곡 검색">
-                <div class="search-box song-lookup-row"><i class="fas fa-search text-gray-400 mr-2" aria-hidden="true"></i><input id="songLookupQuery" class="bg-transparent border-none outline-none w-full" type="search" placeholder="제목, 가수, 발음 검색" aria-label="곡명 또는 가수"><button type="button" id="songLookupSearchBtn" onclick="searchKaraokeSongs()" aria-label="검색 실행"><i class="fas fa-arrow-right"></i></button></div>
+                <div class="song-lookup-row"><input id="songLookupQuery" class="ios-input" type="search" placeholder="곡명 또는 가수로 검색" aria-label="곡명 또는 가수"><button type="button" id="songLookupSearchBtn" onclick="searchKaraokeSongs()">검색</button></div>
                 <p id="songLookupStatus" class="song-lookup-status" role="status" aria-live="polite"></p>
                 <div id="songLookupResults" class="song-lookup-results" hidden></div>
             </section>
@@ -78,34 +78,14 @@
                 <label class="form-field" for="inKY"><span>KY 번호</span><input type="text" id="inKY" class="ios-input" placeholder="KY 번호" inputmode="numeric"></label>
             </div>
 
-            <div class="lyrics-header-strip">
-                <div class="lyrics-heading"><strong>가사</strong><span>선택</span></div>
-                <div class="lyrics-tools"><button type="button" id="japaneseLyricsFormatBtn" onclick="applyJapaneseLyricsFormat()" aria-label="가사 자동 정리">AUTO FORMAT</button><span id="japaneseLyricsFormatMessage" role="status" aria-live="polite" data-state="idle">미적용</span><button type="button" id="autoFormatUndoBtn" onclick="undoAutoFormat()" hidden>되돌리기</button></div>
-            </div>
+            <div class="lyrics-label lyrics-label-actions" style="display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;margin-bottom:10px"><div class="lyrics-title" style="display:flex;align-items:baseline;gap:5px;flex-shrink:0;white-space:nowrap"><strong style="font-size:13px;font-weight:600;color:#555e68">가사</strong><span style="font-size:11px;font-weight:400;color:#8e96a3">선택</span></div><div class="pro-toolbar" role="toolbar" aria-label="가사 자동 정리" style="display:flex;align-items:center;justify-content:flex-end;gap:7px;flex:0 1 auto;width:auto;min-width:0;margin:0">
+                <button type="button" id="japaneseLyricsFormatBtn" class="tool-btn" onclick="applyJapaneseLyricsFormat()" aria-label="가사 자동 정리 및 3줄 서식" title="가사 자동 정리 및 3줄 서식">AUTO FORMAT</button>
+            <p id="japaneseLyricsFormatMessage" class="japanese-lyrics-format-message" role="status" aria-live="polite" data-state="idle">미적용</p>
+                <button type="button" id="autoFormatUndoBtn" onclick="undoAutoFormat()" aria-label="자동 정리 되돌리기" hidden>되돌리기</button>
+            </div></div>
             <div id="lyricsEditor" contenteditable="true" role="textbox" aria-label="가사" aria-multiline="true" data-placeholder="가사를 입력하거나 붙여넣으세요"></div>
             <p id="songFormMessage" class="form-message" role="status"></p><button type="button" onclick="saveSong()" id="saveBtn" class="w-full py-5 bg-[#1C1E21] text-white rounded-3xl font-bold text-xl mt-6">저장하기</button>
             <button id="cancelEditBtn" onclick="resetAllStates(); switchTab('home', document.querySelectorAll('.nav-item')[0]);" class="hidden w-full py-4 text-gray-400 mt-2 font-bold">취소</button>
-        </div>
-    </section>
-
-    <section id="tab-chart" class="tab-content">
-        <header class="header-section">
-            <div class="header-main"><h1 class="header-title">노래방 차트</h1><button type="button" class="edit-btn" onclick="refreshKaraokeChart()">새로고침</button></div>
-            <div class="addon-section">
-                <div class="search-box">
-                    <i class="fas fa-search text-gray-400 mr-2" aria-hidden="true"></i>
-                    <input id="chartSearchInput" type="search" oninput="renderKaraokeChart()" placeholder="제목, 가수, 번호 검색" class="bg-transparent border-none outline-none w-full" aria-label="차트 검색">
-                </div>
-                <div class="category-scroll chart-categories" aria-label="차트 장르">
-                    <button class="filter-pill active" data-chart-genre="all" onclick="setKaraokeChart('all')">전체</button>
-                    <button class="filter-pill" data-chart-genre="kpop" onclick="setKaraokeChart('kpop')">가요</button>
-                    <button class="filter-pill" data-chart-genre="jpop" onclick="setKaraokeChart('jpop')">J-POP</button>
-                </div>
-            </div>
-        </header>
-        <div class="scroll-body chart-scroll">
-            <div class="chart-summary"><span id="chartStatus" role="status" aria-live="polite">차트를 불러오는 중…</span><a href="https://www.tjmedia.com/chart/top100" target="_blank" rel="noopener noreferrer">TJ 공식 차트 <i class="fas fa-arrow-up-right-from-square"></i></a></div>
-            <div id="chartSongs" class="chart-song-list" aria-label="노래방 인기 순위"></div>
         </div>
     </section>
 
@@ -122,14 +102,13 @@
             <div class="settings-group sync-group"><div class="sync-summary"><i class="fas fa-cloud" aria-hidden="true"></i><p id="cloudStatus" role="status">이 기기에 저장됨</p></div><button type="button" onclick="initializeCloud()" class="settings-row"><i class="fas fa-rotate" aria-hidden="true"></i><span>동기화 다시 시도</span><i class="fas fa-chevron-right row-chevron" aria-hidden="true"></i></button></div>
             <div class="settings-group"><button type="button" onclick="logoutApp()" class="settings-row"><i class="fas fa-arrow-right-from-bracket" aria-hidden="true"></i><span>로그아웃</span><i class="fas fa-chevron-right row-chevron" aria-hidden="true"></i></button><button type="button" onclick="clearData()" class="settings-row danger-row"><i class="fas fa-trash-alt" aria-hidden="true"></i><span>모든 곡 휴지통으로 이동</span><i class="fas fa-chevron-right row-chevron" aria-hidden="true"></i></button></div>
             <div class="settings-group" aria-label="앱 새로고침"><button type="button" onclick="refreshAppAssets(this)" class="settings-row"><i class="fas fa-rotate" aria-hidden="true"></i><span>즉시 새로고침</span><i class="fas fa-chevron-right row-chevron" aria-hidden="true"></i></button></div>
-            <div class="settings-group" aria-label="앱 정보"><div class="settings-row" role="group" aria-label="앱 버전"><i class="fas fa-circle-info" aria-hidden="true"></i><span>앱 버전</span><span class="settings-version-value">v16.1</span></div></div>
+            <div class="settings-group" aria-label="앱 정보"><div class="settings-row" role="group" aria-label="앱 버전"><i class="fas fa-circle-info" aria-hidden="true"></i><span>앱 버전</span><span class="settings-version-value">v15.5</span></div></div>
         </div>
     </section>
 
     <nav id="bottom-nav" class="bottom-nav">
         <div class="nav-item active" onclick="switchTab('home', this)"><i class="fas fa-house"></i></div>
         <div class="nav-item" onclick="switchTab('add', this)"><i class="fas fa-plus"></i></div>
-        <div class="nav-item" onclick="switchTab('chart', this)" aria-label="노래방 차트"><i class="fas fa-chart-simple"></i></div>
         <div class="nav-item" onclick="switchTab('more', this)"><i class="fas fa-gear"></i></div>
     </nav>
 
@@ -155,6 +134,6 @@
         </div>
     </div>
 
-    <script src="/app.js?v=16.1"></script>
+    <script src="/app.js?v=15.5"></script>
 </body>
 </html>
