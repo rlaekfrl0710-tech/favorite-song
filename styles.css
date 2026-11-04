@@ -398,3 +398,23 @@ body.keyboard-open #tab-add #lyricsEditor{scroll-margin-bottom:16px}
 #tab-chart .chart-frame-wrap{height:580px;min-height:360px;overflow:hidden;border:1px solid #e8e9ec;border-radius:15px;background:#fff}
 #tab-chart #karaokeChartFrame{display:block;width:100%;height:100%;border:0;background:#fff}
 #tab-chart .chart-help{margin:12px 3px 0;color:#8b929c;font-size:11px;line-height:1.6}
+
+/* v15.7: restore original My Karaoke visual system across add and chart. */
+#tab-add .song-lookup{margin-bottom:16px}
+#tab-add .song-lookup-row.search-box{display:flex;align-items:center;gap:8px;padding-right:9px;min-height:48px;border-radius:14px}
+#tab-add .song-lookup-row input{min-width:0;flex:1;height:38px;background:transparent;border:0;outline:none;box-shadow:none;font-size:14px}
+#tab-add .song-lookup-row button{display:flex;align-items:center;justify-content:center;flex:0 0 30px;width:30px;height:30px;border-radius:9px;background:transparent;color:#7c838e;padding:0;font-size:13px}
+#tab-add .song-lookup-hint{margin:9px 4px 0;font-size:11px;line-height:1.6;color:#9298a0}
+#tab-add .song-lookup-status{margin-top:8px;font-size:11px}
+#tab-add .lyrics-label-actions{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:8px!important}
+#tab-add .lyrics-label-actions .lyrics-title{flex:0 0 auto!important;white-space:nowrap!important}
+#tab-add .lyrics-label-actions .pro-toolbar{flex:0 1 auto!important;display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:7px!important;min-width:0!important}
+#tab-add #japaneseLyricsFormatBtn{display:inline-flex!important;align-items:center!important;justify-content:center!important;width:auto!important;min-width:0!important;height:32px!important;padding:0 10px!important;border:1px solid #e5e8eb!important;border-radius:10px!important;background:#f5f6f8!important;color:#444b55!important;font-size:10px!important;font-weight:700!important;letter-spacing:0!important;box-shadow:none!important;white-space:nowrap!important}
+#tab-add #japaneseLyricsFormatMessage{font-size:11px!important;color:#9298a0!important;white-space:nowrap!important;line-height:20px!important}
+#tab-add #autoFormatUndoBtn{font-size:11px!important;white-space:nowrap!important}
+#tab-chart .chart-categories{display:flex;gap:8px}
+#tab-chart .chart-categories .filter-pill{flex:0 0 auto}
+#tab-chart .chart-description{margin:3px 0 16px;color:#9298a0;font-size:12px}
+#tab-chart .chart-source{margin:0 0 12px}
+#tab-chart .chart-scroll{padding-top:17px!important}
+#tab-chart .chart-frame-wrap{border-radius:14px}

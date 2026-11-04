@@ -32,6 +32,28 @@ const knownAliases=new Map([
  ['残酷な天使のテーゼ','잔혹한천사의테제'],['紅蓮華','홍련화'],
  ['怪物','괴물'],['青のすみか','푸르름이사는곳'],['ホシアイ','호시아이']
 ]);
+const artistAliases=[
+ ['YOASOBI','요아소비','ヨアソビ'],['Ado','아도','アド'],['Vaundy','바운디','バウンディ'],
+ ['Yorushika','요루시카','ヨルシカ'],['Eve','이브','イブ'],['Yuuri','유우리','優里'],
+ ['Kenshi Yonezu','요네즈 켄시','米津玄師'],['Yonezu Kenshi','요네즈 켄시','米津玄師'],
+ ['Mrs. GREEN APPLE','미세스 그린 애플','ミセスグリーンアップル'],
+ ['Official Hige Dandism','오피셜 히게단디즘','Official髭男dism'],
+ ['Higedan','히게단','ヒゲダン'],['back number','백 넘버','バックナンバー'],
+ ['King Gnu','킹 누','キングヌー'],['LiSA','리사','リサ'],
+ ['Aimyon','아이묭','あいみょん'],['Natori','나토리','なとり'],
+ ['ZUTOMAYO','즛토마요','ずっと真夜中でいいのに。'],
+ ['RADWIMPS','래드윔프스','ラッドウィンプス'],
+ ['SPYAIR','스파이에어','スパイエアー'],
+ ['BUMP OF CHICKEN','범프 오브 치킨','バンプオブチキン'],
+ ['Creepy Nuts','크리피 너츠','クリーピーナッツ'],
+ ['Fujii Kaze','후지이 카제','藤井風']
+];
+const aliasKey=s=>s.normalize('NFKC').toLocaleLowerCase().replace(/[\\s\\p{P}\\p{S}]/gu,'');
+function artistVariants(query){
+ const key=aliasKey(query);
+ const row=artistAliases.find(names=>names.some(name=>aliasKey(name)===key));
+ return row?row.filter(name=>aliasKey(name)!==key):[];
+}
 function queryVariants(query){
   const variants=[query,query.normalize('NFKC')];
   const hira=toHiragana(query);
@@ -40,7 +62,8 @@ function queryVariants(query){
   if(reading!==query&&/[가-힣]/.test(reading))variants.push(reading);
   const alias=knownAliases.get(query);
   if(alias)variants.push(alias);
-  return [...new Set(variants.map(x=>x.trim()).filter(x=>x.length>=2))].slice(0,4);
+  variants.push(...artistVariants(query));
+  return [...new Set(variants.map(x=>x.trim()).filter(x=>x.length>=2))].slice(0,7);
 }
 module.exports=async function handler(req,res){
   res.setHeader('Cache-Control','no-store');
@@ -56,7 +79,7 @@ module.exports=async function handler(req,res){
     if(!response.ok)throw Error('검색 서비스 응답 오류');
     const json=await response.json();
     return (Array.isArray(json.data)?json.data:[])
-      .filter(x=>x&&x.no&&x.title&&x.brand===brand)
+      .filter(x=>x&&x.no&&x.title&&(!x.brand||x.brand===brand))
       .map(x=>({title:String(x.title).trim(),artist:String(x.singer||'').trim(),brand,number:String(x.no).trim()}));
   };
   const searchTerm=async term=>Promise.allSettled(['tj','kumyoung'].flatMap(brand=>['title','singer'].map(field=>search(brand,field,term))));
@@ -65,7 +88,7 @@ module.exports=async function handler(req,res){
     let settled=[...initial],records=initial.filter(x=>x.status==='fulfilled').flatMap(x=>x.value);
     // Additional Japanese/Korean reading variants only when the initial query returns no matches.
     if(!records.length){
-      const variants=queryVariants(q).filter(term=>term!==q).slice(0,3);
+      const variants=queryVariants(q).filter(term=>term!==q).slice(0,6);
       const expanded=await Promise.all(variants.map(searchTerm));
       settled.push(...expanded.flat());
       records=settled.filter(x=>x.status==='fulfilled').flatMap(x=>x.value);

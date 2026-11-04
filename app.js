@@ -139,24 +139,22 @@
         }
 
 
-        const karaokeChartSources={
-            top:{label:'TJ 공식 TOP 100',url:'https://www.tjmedia.com/chart/top100'},
-            hot:{label:'TJ 공식 HOT 100',url:'https://www.tjmedia.com/chart/hot100'}
-        };
-        function setKaraokeChart(kind){
-            const source=karaokeChartSources[kind]||karaokeChartSources.top;
-            document.querySelectorAll('.chart-tab').forEach(button=>button.classList.toggle('active',button.dataset.chart===kind));
-            document.getElementById('chartSourceName').textContent=source.label;
-            document.getElementById('chartExternalLink').href=source.url;
-            const frame=document.getElementById('karaokeChartFrame');
-            frame.title=source.label;
-            if(frame.getAttribute('src')!==source.url)frame.setAttribute('src',source.url);
+        const karaokeChartUrl='https://www.tjmedia.co.kr/chart/top100';
+        let karaokeChartGenre='all';
+        function setKaraokeChart(genre){
+            karaokeChartGenre=['all','kpop','jpop'].includes(genre)?genre:'all';
+            document.querySelectorAll('[data-chart-genre]').forEach(button=>button.classList.toggle('active',button.dataset.chartGenre===karaokeChartGenre));
+            document.getElementById('chartSourceName').textContent=({all:'전체 인기곡',kpop:'가요 인기곡',jpop:'J-POP 인기곡'})[karaokeChartGenre];
+            // TJ controls the actual genre filtering on its official chart page.
+            // Do not misrepresent an unfiltered iframe as a genre-filtered ranking.
+            document.getElementById('chartExternalLink').href=karaokeChartUrl;
+            document.getElementById('karaokeChartFrame').src=karaokeChartUrl;
+            const help=document.querySelector('#tab-chart .chart-help');
+            help.textContent=karaokeChartGenre==='all'?'차트는 TJ 공식 사이트에서 제공합니다. 표시되지 않으면 공식 차트를 눌러 확인하세요.':'TJ 공식 차트에서 '+(karaokeChartGenre==='kpop'?'가요':'JPOP')+' 필터를 선택해 확인하세요. 공식 차트 버튼으로 이동할 수 있어요.';
         }
         function refreshKaraokeChart(){
             const frame=document.getElementById('karaokeChartFrame');
-            const url=new URL(frame.src);
-            url.searchParams.set('_refresh',Date.now().toString());
-            frame.src=url.href;
+            frame.src=karaokeChartUrl+'?_refresh='+Date.now();
         }
 
         let songLookupItems=[];
@@ -175,7 +173,7 @@
                 if(token!==window.songLookupToken)return;
                 if(!response.ok)throw Error(payload.error||'검색 서버에 연결하지 못했어요.');
                 songLookupItems=Array.isArray(payload.items)?payload.items:[];
-                status.textContent=songLookupItems.length?('검색 결과 '+songLookupItems.length+'개 · 원하는 곡을 선택하세요.'):(payload.partial?'일부 검색 서비스가 응답하지 않았어요. 일본어 원제 또는 한글 발음으로 다시 검색해 보세요.':'검색 결과가 없어요. 일본어 원제·한글 발음·가수명으로 다시 검색하거나 직접 입력해 주세요.');
+                status.textContent=songLookupItems.length?('검색 결과 '+songLookupItems.length+'개'):(payload.partial?'일부 검색 서비스에 연결하지 못했어요.':'결과가 없어요. 다른 표기로 검색하거나 직접 입력하세요.');
                 songLookupItems.forEach((song,index)=>{
                     const item=document.createElement('button');item.type='button';item.className='song-lookup-item';
                     const details=document.createElement('span');details.className='song-lookup-details';
