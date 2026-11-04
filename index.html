@@ -15,7 +15,7 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/styles.css?v=15.5">
+    <link rel="stylesheet" href="/styles.css?v=15.6">
 </head>
 <body onload="startAuth()" class="auth-locked auth-loading">
     <section id="authGate" aria-labelledby="authTitle"><form id="authForm" onsubmit="submitAuth(event)"><h1 id="authTitle">My 노래방</h1><p id="authDescription">로그인 상태를 확인하고 있어요.</p><input id="authPassword" type="password" autocomplete="current-password" placeholder="비밀번호" aria-label="비밀번호" required minlength="6" maxlength="128" hidden><button id="authSubmit" type="submit" hidden>로그인</button><p id="authMessage" role="status"></p></form></section>
@@ -89,6 +89,23 @@
         </div>
     </section>
 
+    <section id="tab-chart" class="tab-content">
+        <header class="header-section">
+            <div class="header-main"><h1 class="header-title">노래방 차트</h1><button type="button" class="chart-refresh" onclick="refreshKaraokeChart()" aria-label="차트 새로고침"><i class="fas fa-rotate-right"></i></button></div>
+            <p class="chart-description">TJ 공식 인기곡 순위 · 제공처 집계 기준</p>
+            <div class="chart-tabs" role="group" aria-label="차트 종류">
+                <button type="button" class="chart-tab active" data-chart="top" onclick="setKaraokeChart('top')">TOP 100</button>
+                <button type="button" class="chart-tab" data-chart="hot" onclick="setKaraokeChart('hot')">HOT 100</button>
+            </div>
+        </header>
+        <div class="scroll-body chart-scroll">
+            <div class="chart-notice"><i class="fas fa-circle-info" aria-hidden="true"></i><span>공식 차트는 실시간 초 단위 순위가 아닌 집계된 인기 순위입니다. 표시되는 집계 기간을 확인해 주세요.</span></div>
+            <div class="chart-source"><span id="chartSourceName">TJ 공식 TOP 100</span><a id="chartExternalLink" href="https://www.tjmedia.com/chart/top100" target="_blank" rel="noopener noreferrer">공식 사이트 <i class="fas fa-arrow-up-right-from-square"></i></a></div>
+            <div class="chart-frame-wrap"><iframe id="karaokeChartFrame" title="TJ 공식 노래방 인기차트" loading="lazy" referrerpolicy="no-referrer" src="https://www.tjmedia.com/chart/top100"></iframe></div>
+            <p class="chart-help">차트가 보이지 않으면 공식 사이트를 눌러 확인해 주세요. 제공처에서 외부 페이지 표시를 제한할 수 있습니다.</p>
+        </div>
+    </section>
+
     <section id="tab-more" class="tab-content">
         <header class="header-section">
             <div class="header-main"><h1 class="header-title">설정</h1></div>
@@ -102,13 +119,14 @@
             <div class="settings-group sync-group"><div class="sync-summary"><i class="fas fa-cloud" aria-hidden="true"></i><p id="cloudStatus" role="status">이 기기에 저장됨</p></div><button type="button" onclick="initializeCloud()" class="settings-row"><i class="fas fa-rotate" aria-hidden="true"></i><span>동기화 다시 시도</span><i class="fas fa-chevron-right row-chevron" aria-hidden="true"></i></button></div>
             <div class="settings-group"><button type="button" onclick="logoutApp()" class="settings-row"><i class="fas fa-arrow-right-from-bracket" aria-hidden="true"></i><span>로그아웃</span><i class="fas fa-chevron-right row-chevron" aria-hidden="true"></i></button><button type="button" onclick="clearData()" class="settings-row danger-row"><i class="fas fa-trash-alt" aria-hidden="true"></i><span>모든 곡 휴지통으로 이동</span><i class="fas fa-chevron-right row-chevron" aria-hidden="true"></i></button></div>
             <div class="settings-group" aria-label="앱 새로고침"><button type="button" onclick="refreshAppAssets(this)" class="settings-row"><i class="fas fa-rotate" aria-hidden="true"></i><span>즉시 새로고침</span><i class="fas fa-chevron-right row-chevron" aria-hidden="true"></i></button></div>
-            <div class="settings-group" aria-label="앱 정보"><div class="settings-row" role="group" aria-label="앱 버전"><i class="fas fa-circle-info" aria-hidden="true"></i><span>앱 버전</span><span class="settings-version-value">v15.5</span></div></div>
+            <div class="settings-group" aria-label="앱 정보"><div class="settings-row" role="group" aria-label="앱 버전"><i class="fas fa-circle-info" aria-hidden="true"></i><span>앱 버전</span><span class="settings-version-value">v15.6</span></div></div>
         </div>
     </section>
 
     <nav id="bottom-nav" class="bottom-nav">
         <div class="nav-item active" onclick="switchTab('home', this)"><i class="fas fa-house"></i></div>
         <div class="nav-item" onclick="switchTab('add', this)"><i class="fas fa-plus"></i></div>
+        <div class="nav-item" onclick="switchTab('chart', this)" aria-label="노래방 차트"><i class="fas fa-chart-simple"></i></div>
         <div class="nav-item" onclick="switchTab('more', this)"><i class="fas fa-gear"></i></div>
     </nav>
 
@@ -134,6 +152,6 @@
         </div>
     </div>
 
-    <script src="/app.js?v=15.5"></script>
+    <script src="/app.js?v=15.6"></script>
 </body>
 </html>
