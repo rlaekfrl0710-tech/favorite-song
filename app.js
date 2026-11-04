@@ -146,36 +146,39 @@
         function setKaraokeChart(genre){
             karaokeChartGenre=['all','kpop','jpop'].includes(genre)?genre:'all';
             document.querySelectorAll('[data-chart-genre]').forEach(button=>button.classList.toggle('active',button.dataset.chartGenre===karaokeChartGenre));
-            loadKaraokeChart(false);
+            renderKaraokeChart();
         }
         function refreshKaraokeChart(){loadKaraokeChart(true);}
         async function loadKaraokeChart(force){
             const status=document.getElementById('chartStatus');
-            if(!karaokeChartData||force){
-                status.textContent='차트를 불러오는 중…';
-                if(!karaokeChartPromise||force){
-                    karaokeChartPromise=fetch('/chart-data.json'+(force?'?t='+Date.now():''),{cache:force?'no-store':'default'})
-                        .then(async response=>{if(!response.ok)throw Error('차트 파일을 읽을 수 없어요.');return response.json();})
-                        .then(payload=>{if(!payload||!payload.categories)throw Error('차트 파일 형식 오류');karaokeChartData=payload;return payload;})
-                        .finally(()=>{karaokeChartPromise=null;});
-                }
-                try{await karaokeChartPromise;}catch(error){status.textContent='차트 파일 오류';document.getElementById('chartSongs').textContent=error.message;return;}
+            if(karaokeChartData&&!force){renderKaraokeChart();return;}
+            status.textContent='차트를 불러오는 중…';
+            if(!karaokeChartPromise){
+                karaokeChartPromise=fetch('/chart-data.json'+(force?'?t='+Date.now():''),{cache:force?'no-store':'default'})
+                    .then(async response=>{if(!response.ok)throw Error('차트 파일을 읽을 수 없어요.');return response.json();})
+                    .then(payload=>{if(!payload||!payload.categories)throw Error('차트 파일 형식 오류');karaokeChartData=payload;return payload;})
+                    .finally(()=>{karaokeChartPromise=null;});
             }
-            const genre=karaokeChartGenre;
-            const entries=karaokeChartData.categories[genre]||[];
+            try{await karaokeChartPromise;renderKaraokeChart();}
+            catch(error){status.textContent='차트 파일 오류';document.getElementById('chartSongs').textContent=error.message;}
+        }
+        function renderKaraokeChart(){
+            if(!karaokeChartData)return;
+            const entries=karaokeChartData.categories[karaokeChartGenre]||[];
+            const q=(document.getElementById('chartSearchInput')?.value||'').trim().toLocaleLowerCase();
+            const filtered=q?entries.filter(song=>[song.title,song.artist,song.tj].some(value=>String(value||'').toLocaleLowerCase().includes(q))):entries;
             const archive=Boolean(karaokeChartData.archive);
             const stamp=karaokeChartData.updatedAt;
             const date=stamp?new Date(stamp).toLocaleDateString('ko-KR'):'';
-            status.textContent=(archive?'보관 차트':'TJ TOP '+entries.length)+(date?' · '+date:'');
-            const list=document.getElementById('chartSongs');
-            list.replaceChildren();
-            if(!entries.length){
+            document.getElementById('chartStatus').textContent=(archive?'보관 차트':'TJ TOP '+entries.length)+(date?' · '+date:'')+(q?' · 검색 '+filtered.length+'곡':'');
+            const list=document.getElementById('chartSongs');list.replaceChildren();
+            if(!filtered.length){
                 const empty=document.createElement('p');empty.className='chart-error';
-                empty.textContent=archive?'전체 순위는 최신 수집 후 표시됩니다. 가요·J-POP 보관 차트는 확인할 수 있어요.':'수집된 순위가 없어요.';
+                empty.textContent=q?'검색 결과가 없어요.':archive?'전체 순위는 최신 수집 후 표시됩니다. 가요·J-POP 보관 차트는 확인할 수 있어요.':'수집된 순위가 없어요.';
                 list.append(empty);return;
             }
             const fragment=document.createDocumentFragment();
-            entries.forEach(song=>{
+            filtered.forEach(song=>{
                 const row=document.createElement('div');row.className='chart-song';
                 const rank=document.createElement('span');rank.className='chart-rank';rank.textContent=song.rank;
                 const detail=document.createElement('div');detail.className='chart-song-detail';
