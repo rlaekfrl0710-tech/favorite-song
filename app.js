@@ -117,7 +117,7 @@
         function switchTab(tabId, el) {
             const previousTab=document.querySelector('.tab-content.active');
             const nextTab=document.getElementById('tab-' + tabId);
-            const order=['home','add','more'];
+            const order=['home','add','chart','more'];
             const from=order.indexOf(previousTab?.id.replace('tab-',''));
             const to=order.indexOf(tabId);
             const forward=from>=0&&to>=0&&((to-from+order.length)%order.length===1);
@@ -138,6 +138,26 @@
             window.scrollTo(0,0);
         }
 
+
+        const karaokeChartSources={
+            top:{label:'TJ 공식 TOP 100',url:'https://www.tjmedia.com/chart/top100'},
+            hot:{label:'TJ 공식 HOT 100',url:'https://www.tjmedia.com/chart/hot100'}
+        };
+        function setKaraokeChart(kind){
+            const source=karaokeChartSources[kind]||karaokeChartSources.top;
+            document.querySelectorAll('.chart-tab').forEach(button=>button.classList.toggle('active',button.dataset.chart===kind));
+            document.getElementById('chartSourceName').textContent=source.label;
+            document.getElementById('chartExternalLink').href=source.url;
+            const frame=document.getElementById('karaokeChartFrame');
+            frame.title=source.label;
+            if(frame.getAttribute('src')!==source.url)frame.setAttribute('src',source.url);
+        }
+        function refreshKaraokeChart(){
+            const frame=document.getElementById('karaokeChartFrame');
+            const url=new URL(frame.src);
+            url.searchParams.set('_refresh',Date.now().toString());
+            frame.src=url.href;
+        }
 
         let songLookupItems=[];
         async function searchKaraokeSongs(){
