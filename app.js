@@ -141,8 +141,8 @@
 
 
         let karaokeChartGenre='all';
-        const karaokeChartCache=new Map();
-        let karaokeChartRequest=0;
+        let karaokeChartData=null;
+        let karaokeChartPromise=null;
         function setKaraokeChart(genre){
             karaokeChartGenre=['all','kpop','jpop'].includes(genre)?genre:'all';
             document.querySelectorAll('[data-chart-genre]').forEach(button=>button.classList.toggle('active',button.dataset.chartGenre===karaokeChartGenre));
@@ -150,35 +150,32 @@
         }
         function refreshKaraokeChart(){loadKaraokeChart(true);}
         async function loadKaraokeChart(force){
-            const genre=karaokeChartGenre,token=++karaokeChartRequest;
-            const status=document.getElementById('chartStatus'),list=document.getElementById('chartSongs');
-            const cached=karaokeChartCache.get(genre);
-            if(cached&&!force&&Date.now()-cached.time<300000){renderKaraokeChart(cached.items,cached.fetchedAt);return;}
-            status.textContent='차트를 불러오는 중…';
-            list.replaceChildren();
-            try{
-                const response=await fetch('/api/chart?genre='+genre+(force?'&refresh=1':''),{cache:'no-store'});
-                const payload=await response.json();
-                if(token!==karaokeChartRequest)return;
-                if(!response.ok)throw Error(payload.error||'차트를 가져오지 못했어요.');
-                if(!Array.isArray(payload.items)||!payload.items.length)throw Error('현재 순위 데이터가 없어요.');
-                window.karaokeChartSnapshot=Boolean(payload.snapshot);
-                karaokeChartCache.set(genre,{items:payload.items,fetchedAt:payload.fetchedAt,time:Date.now()});
-                renderKaraokeChart(payload.items,payload.fetchedAt);
-            }catch(error){
-                if(token!==karaokeChartRequest)return;
-                status.textContent='차트 연결 오류';
-                const message=document.createElement('p');message.className='chart-error';message.textContent=error.message;
-                list.append(message);
+            const status=document.getElementById('chartStatus');
+            if(!karaokeChartData||force){
+                status.textContent='차트를 불러오는 중…';
+                if(!karaokeChartPromise||force){
+                    karaokeChartPromise=fetch('/chart-data.json'+(force?'?t='+Date.now():''),{cache:force?'no-store':'default'})
+                        .then(async response=>{if(!response.ok)throw Error('차트 파일을 읽을 수 없어요.');return response.json();})
+                        .then(payload=>{if(!payload||!payload.categories)throw Error('차트 파일 형식 오류');karaokeChartData=payload;return payload;})
+                        .finally(()=>{karaokeChartPromise=null;});
+                }
+                try{await karaokeChartPromise;}catch(error){status.textContent='차트 파일 오류';document.getElementById('chartSongs').textContent=error.message;return;}
             }
-        }
-        function renderKaraokeChart(items,fetchedAt){
-            const status=document.getElementById('chartStatus'),list=document.getElementById('chartSongs');
-            const time=fetchedAt?new Date(fetchedAt).toLocaleString('ko-KR',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'}):'';
-            status.textContent=(window.karaokeChartSnapshot?'과거 보관 차트':'TJ 인기 TOP '+items.length)+(time?' · '+time:'');
+            const genre=karaokeChartGenre;
+            const entries=karaokeChartData.categories[genre]||[];
+            const archive=Boolean(karaokeChartData.archive);
+            const stamp=karaokeChartData.updatedAt;
+            const date=stamp?new Date(stamp).toLocaleDateString('ko-KR'):'';
+            status.textContent=(archive?'보관 차트':'TJ TOP '+entries.length)+(date?' · '+date:'');
+            const list=document.getElementById('chartSongs');
             list.replaceChildren();
+            if(!entries.length){
+                const empty=document.createElement('p');empty.className='chart-error';
+                empty.textContent=archive?'전체 순위는 최신 수집 후 표시됩니다. 가요·J-POP 보관 차트는 확인할 수 있어요.':'수집된 순위가 없어요.';
+                list.append(empty);return;
+            }
             const fragment=document.createDocumentFragment();
-            items.forEach(song=>{
+            entries.forEach(song=>{
                 const row=document.createElement('div');row.className='chart-song';
                 const rank=document.createElement('span');rank.className='chart-rank';rank.textContent=song.rank;
                 const detail=document.createElement('div');detail.className='chart-song-detail';
