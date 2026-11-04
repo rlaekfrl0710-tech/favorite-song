@@ -418,3 +418,24 @@ body.keyboard-open #tab-add #lyricsEditor{scroll-margin-bottom:16px}
 #tab-chart .chart-source{margin:0 0 12px}
 #tab-chart .chart-scroll{padding-top:17px!important}
 #tab-chart .chart-frame-wrap{border-radius:14px}
+
+/* v15.8: remove iframe; render TJ chart with the native song-list design. */
+#tab-chart .chart-scroll{padding:8px 0 30px!important}
+#tab-chart .chart-categories{display:flex;gap:8px}
+#tab-chart .chart-summary{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:14px 20px 9px;font-size:11px;color:#8b929c}
+#tab-chart .chart-summary a{white-space:nowrap;color:#6b7280;font-weight:600}
+#tab-chart .chart-song-list{padding:0 20px}
+#tab-chart .chart-song{display:flex;align-items:center;gap:13px;min-height:70px;border-bottom:1px solid #f0f1f3}
+#tab-chart .chart-rank{width:22px;flex:0 0 22px;text-align:center;color:#1c1e21;font-size:16px;font-weight:800}
+#tab-chart .chart-song-detail{display:flex;flex:1;min-width:0;flex-direction:column;gap:5px}
+#tab-chart .chart-song-detail strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;font-weight:700;color:#1c1e21}
+#tab-chart .chart-song-detail span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;color:#9ca3af}
+#tab-chart .chart-song-number{flex:0 0 auto;font-size:11px;font-weight:600;color:#747b85}
+#tab-chart .chart-error{padding:24px 0;text-align:center;font-size:12px;line-height:1.8;color:#8b929c}
+/* Upload search: align the search box itself with the content edges, without nested side margins. */
+#tab-add .song-lookup{margin-left:0!important;margin-right:0!important;padding-left:0!important;padding-right:0!important}
+#tab-add .song-lookup-row.search-box{width:100%!important;max-width:none!important;margin-left:0!important;margin-right:0!important;box-sizing:border-box!important}
+/* Lyrics: keep the optional label from becoming an oversized selectable pill. */
+#tab-add .lyrics-label-actions .lyrics-title{display:inline-flex!important;align-items:center!important;gap:5px!important;min-width:0!important;max-width:max-content!important;width:auto!important;padding:0!important;margin:0!important;line-height:20px!important}
+#tab-add .lyrics-label-actions .lyrics-title span{display:inline!important;flex:0 0 auto!important;width:auto!important;height:auto!important;padding:0!important;margin:0!important;background:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;line-height:20px!important}
+#tab-add .lyrics-label-actions .pro-toolbar{width:auto!important;max-width:calc(100% - 70px)!important}
