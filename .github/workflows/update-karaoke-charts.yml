@@ -6,6 +6,7 @@ on:
     branches: [main]
     paths:
       - ".github/workflows/update-karaoke-charts.yml"
+      - "scripts/update-charts.cjs"
   workflow_dispatch:
 permissions:
   contents: write
