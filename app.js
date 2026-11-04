@@ -135,26 +135,59 @@
             el.classList.add('active');
             document.getElementById('bottom-nav').style.setProperty('--nav-active-index',Array.prototype.indexOf.call(el.parentElement.children,el));
             if(tabId==='home')renderList();
+            if(tabId==='chart')loadKaraokeChart(false);
             window.scrollTo(0,0);
         }
 
 
-        const karaokeChartUrl='https://www.tjmedia.co.kr/chart/top100';
         let karaokeChartGenre='all';
+        const karaokeChartCache=new Map();
+        let karaokeChartRequest=0;
         function setKaraokeChart(genre){
             karaokeChartGenre=['all','kpop','jpop'].includes(genre)?genre:'all';
             document.querySelectorAll('[data-chart-genre]').forEach(button=>button.classList.toggle('active',button.dataset.chartGenre===karaokeChartGenre));
-            document.getElementById('chartSourceName').textContent=({all:'전체 인기곡',kpop:'가요 인기곡',jpop:'J-POP 인기곡'})[karaokeChartGenre];
-            // TJ controls the actual genre filtering on its official chart page.
-            // Do not misrepresent an unfiltered iframe as a genre-filtered ranking.
-            document.getElementById('chartExternalLink').href=karaokeChartUrl;
-            document.getElementById('karaokeChartFrame').src=karaokeChartUrl;
-            const help=document.querySelector('#tab-chart .chart-help');
-            help.textContent=karaokeChartGenre==='all'?'차트는 TJ 공식 사이트에서 제공합니다. 표시되지 않으면 공식 차트를 눌러 확인하세요.':'TJ 공식 차트에서 '+(karaokeChartGenre==='kpop'?'가요':'JPOP')+' 필터를 선택해 확인하세요. 공식 차트 버튼으로 이동할 수 있어요.';
+            loadKaraokeChart(false);
         }
-        function refreshKaraokeChart(){
-            const frame=document.getElementById('karaokeChartFrame');
-            frame.src=karaokeChartUrl+'?_refresh='+Date.now();
+        function refreshKaraokeChart(){loadKaraokeChart(true);}
+        async function loadKaraokeChart(force){
+            const genre=karaokeChartGenre,token=++karaokeChartRequest;
+            const status=document.getElementById('chartStatus'),list=document.getElementById('chartSongs');
+            const cached=karaokeChartCache.get(genre);
+            if(cached&&!force&&Date.now()-cached.time<300000){renderKaraokeChart(cached.items,cached.fetchedAt);return;}
+            status.textContent='차트를 불러오는 중…';
+            list.replaceChildren();
+            try{
+                const response=await fetch('/api/chart?genre='+genre+(force?'&refresh=1':''),{cache:'no-store'});
+                const payload=await response.json();
+                if(token!==karaokeChartRequest)return;
+                if(!response.ok)throw Error(payload.error||'차트를 가져오지 못했어요.');
+                if(!Array.isArray(payload.items)||!payload.items.length)throw Error('현재 순위 데이터가 없어요.');
+                karaokeChartCache.set(genre,{items:payload.items,fetchedAt:payload.fetchedAt,time:Date.now()});
+                renderKaraokeChart(payload.items,payload.fetchedAt);
+            }catch(error){
+                if(token!==karaokeChartRequest)return;
+                status.textContent='차트를 불러오지 못했어요.';
+                const message=document.createElement('p');message.className='chart-error';message.textContent=error.message+' 잠시 후 새로고침하거나 공식 차트를 확인해 주세요.';
+                list.append(message);
+            }
+        }
+        function renderKaraokeChart(items,fetchedAt){
+            const status=document.getElementById('chartStatus'),list=document.getElementById('chartSongs');
+            const time=fetchedAt?new Date(fetchedAt).toLocaleString('ko-KR',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'}):'';
+            status.textContent='TJ 인기 TOP '+items.length+(time?' · 조회 '+time:'');
+            list.replaceChildren();
+            const fragment=document.createDocumentFragment();
+            items.forEach(song=>{
+                const row=document.createElement('div');row.className='chart-song';
+                const rank=document.createElement('span');rank.className='chart-rank';rank.textContent=song.rank;
+                const detail=document.createElement('div');detail.className='chart-song-detail';
+                const title=document.createElement('strong');title.textContent=song.title;
+                const artist=document.createElement('span');artist.textContent=song.artist;
+                detail.append(title,artist);
+                const number=document.createElement('span');number.className='chart-song-number';number.textContent='TJ '+song.tj;
+                row.append(rank,detail,number);fragment.append(row);
+            });
+            list.append(fragment);
         }
 
         let songLookupItems=[];
